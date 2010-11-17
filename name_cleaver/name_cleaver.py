@@ -115,7 +115,7 @@ class Name:
         return self
 
     def uppercase_the_scots(self):
-        matches = re.search(r'(?i)(?P<mc>ma?c)(?P<first_letter>\w)', self.last)
+        matches = re.search(r'(?i)\b(?P<mc>ma?c)(?P<first_letter>\w)\w+', self.last)
 
         if matches:
             mc = matches.group('mc')

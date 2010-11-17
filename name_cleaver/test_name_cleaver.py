@@ -16,6 +16,10 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_first_last_mixed_case_with_party(self):
         self.assertEqual('Nancy Pelosi', str(PoliticianNameCleaver('Nancy Pelosi (D)').parse()))
 
+    def test_not_everything_is_a_scot(self):
+        self.assertEqual('Adam Mack', str(PoliticianNameCleaver('ADAM MACK').parse()))
+        self.assertEqual('Don Womackey', str(PoliticianNameCleaver('DON WOMACKEY').parse()))
+
     def test_last_first(self):
         self.assertEqual('Albert Gore', str(PoliticianNameCleaver('Gore, Albert').parse()))
 
