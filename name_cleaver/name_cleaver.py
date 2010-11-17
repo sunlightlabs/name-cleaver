@@ -1,5 +1,7 @@
 import re, string, itertools
 
+SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
+
 class PoliticianNameCleaver():
 
     def __init__(self, string):
@@ -24,12 +26,16 @@ class PoliticianNameCleaver():
 
     def reverse_last_first(self, name):
         split = name.split(', ')
-        split.reverse()
+
+        # make sure that we don't have "Jr" preceded by a comma
+        if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
+            split.reverse()
+
         return ' '.join(split)
 
     def convert_name_to_obj(self, name):
         name = self.reverse_last_first(name)
-        return Name().new_from_tokens(*name.split(' '))
+        return Name().new_from_tokens(*[x for x in name.split(' ') if x])
 
     def convert_running_mates_to_obj(self):
         return RunningMatesNames(*[ self.convert_name_to_obj(x) for x in self.name.split(' & ') ])
@@ -63,7 +69,7 @@ class Name:
 
         elif len(args) == 3:
 
-            if re.match(r'(?i)^([js]r\.?|[IVX]{2,})$', args[-1]):
+            if re.match(r'(?i)^%s$' % SUFFIX_RE, args[-1]):
                 self.first, self.last, self.suffix = args
             else:
                 self.first, self.middle, self.last = args

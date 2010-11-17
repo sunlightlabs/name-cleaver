@@ -28,8 +28,10 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('Milton McCullough Jr', str(PoliticianNameCleaver('Milton Elmer "Mac" McCullough, Jr (3)').parse()))
 
     def test_pile_it_on_two(self):
-        raise SkipTest
-        self.assertEqual('William Southerland II', str(PoliticianNameCleaver('William Steve Southerland  II (R)').parse()))
+        self.assertEqual('William Steve Southerland II', str(PoliticianNameCleaver('William Steve Southerland  II (R)').parse()))
+
+    def test_pile_it_on_three(self):
+        self.assertEqual('Edward Thomas O\'Donnell Jr', str(PoliticianNameCleaver('Edward Thomas O\'Donnell, Jr (D)').parse()))
 
     def test_standardize_running_mate_names(self):
         self.assertEqual('John Kasich & Mary Taylor', str(PoliticianNameCleaver('Kasich, John & Taylor, Mary').parse()))
