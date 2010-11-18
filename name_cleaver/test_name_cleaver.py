@@ -24,8 +24,7 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('Albert Gore', str(PoliticianNameCleaver('Gore, Albert').parse()))
 
     def test_pile_it_on(self):
-        raise SkipTest
-        self.assertEqual('Milton McCullough Jr', str(PoliticianNameCleaver('Milton Elmer "Mac" McCullough, Jr (3)').parse()))
+        self.assertEqual('Milton Elmer McCullough Jr', str(PoliticianNameCleaver('Milton Elmer "Mac" McCullough, Jr (3)').parse()))
 
     def test_pile_it_on_two(self):
         self.assertEqual('William Steve Southerland II', str(PoliticianNameCleaver('William Steve Southerland  II (R)').parse()))
@@ -55,4 +54,11 @@ class TestPoliticianNameCleaver(unittest.TestCase):
 
     def test_multiple_middle_names(self):
         self.assertEqual('Swift Eagle', PoliticianNameCleaver('Alexander Swift Eagle Justice').parse().middle)
+
+    def test_edgar_de_lisle_ross(self):
+        name = PoliticianNameCleaver('Edgar de L\'Isle Ross (R)').parse()
+        self.assertEqual('Edgar', name.first)
+        self.assertEqual('de L\'Isle', name.middle)
+        self.assertEqual('Ross', name.last)
+        self.assertEqual(None, name.suffix)
 

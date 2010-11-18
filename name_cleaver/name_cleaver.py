@@ -47,7 +47,7 @@ class Name:
     last = None
     suffix = None
 
-    last_name_prefixes = ('de', 'di', 'du', 'la', 'van', 'von')
+    family_name_prefixes = ('de', 'di', 'du', 'la', 'van', 'von')
 
     def new(self, first, last, **kwargs):
         self.first = first.strip()
@@ -62,14 +62,21 @@ class Name:
         return self
 
     def new_from_tokens(self, *args):
-        args = [ x.strip() for x in args if not re.match(r'\(', x) ]
+        args = [ x.strip() for x in args if not re.match(r'^[("]', x) ]
+
+        self.detect_and_fix_two_part_name(args)
 
         if len(args) == 4:
-            self.first, self.middle, self.last, self.suffix = args
+            if self.is_a_suffix(args[-1]):
+                self.first, self.middle, self.last, self.suffix = args
+            else:
+                self.first = args[0]
+                self.middle = ' '.join(args[1:3])
+                self.last = args[3]
 
         elif len(args) == 3:
 
-            if re.match(r'(?i)^%s$' % SUFFIX_RE, args[-1]):
+            if self.is_a_suffix(args[-1]):
                 self.first, self.last, self.suffix = args
             else:
                 self.first, self.middle, self.last = args
@@ -80,21 +87,20 @@ class Name:
         elif len(args) == 1:
             self.last = args[0]
 
-        self.detect_and_fix_two_part_last_name()
-
-
         return self
 
-    def detect_and_fix_two_part_last_name(self):
-        if self.last and self.last.lower() in self.last_name_prefixes:
-            self.last = ' '.join([self.last, self.suffix])
-            self.suffix = None
-        elif self.middle and self.middle.lower() in self.last_name_prefixes:
-            self.last = ' '.join([self.middle, self.last])
-            self.middle = None
-        elif self.suffix and len(self.suffix) > 3:
-            self.middle = ' '.join([self.middle, self.last])
-            self.suffix = None
+    def is_a_suffix(self, name_part):
+        return re.match(r'(?i)^%s$' % SUFFIX_RE, name_part)
+
+    def detect_and_fix_two_part_name(self, args):
+        i = 0
+        while i < len(args):
+            if args[i].lower() in self.family_name_prefixes:
+                args[i] = ' '.join(args[i:i+2])
+                del(args[i+1])
+                break
+            else:
+                i += 1
 
     def __str__(self):
         return ' '.join([x for x in [self.first, self.middle, self.last, self.suffix] if x])
@@ -127,7 +133,6 @@ class Name:
             mc = matches.group('mc')
             first_letter = matches.group('first_letter')
             self.last = re.sub(mc + first_letter, mc.title() + first_letter.upper(), self.last)
-
 
 
 class RunningMatesNames:
