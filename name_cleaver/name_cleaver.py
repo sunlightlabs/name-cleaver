@@ -94,7 +94,7 @@ class Name:
 
     def detect_and_fix_two_part_name(self, args):
         i = 0
-        while i < len(args):
+        while i < len(args) - 1:
             if args[i].lower() in self.family_name_prefixes:
                 args[i] = ' '.join(args[i:i+2])
                 del(args[i+1])
