@@ -38,6 +38,7 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_we_dont_need_no_steeenking_nicknames(self):
         self.assertEqual('Robert M McDonnell', str(PoliticianNameCleaver('McDonnell, Robert M (Bob)').parse()))
         self.assertEqual('John J Duncan Jr', str(PoliticianNameCleaver('John J (Jimmy) Duncan Jr (R)').parse()))
+        self.assertEqual('Christopher Bond', str(PoliticianNameCleaver('Christopher "Kit" Bond').parse()))
 
     def test_capitalize_roman_numeral_suffixes(self):
         self.assertEqual('Ken Cuccinelli II', str(PoliticianNameCleaver('KEN CUCCINELLI II').parse()))
@@ -66,4 +67,10 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('de L\'Isle', name.middle)
         self.assertEqual('Ross', name.last)
         self.assertEqual(None, name.suffix)
+
+    def test_with_metadata(self):
+        self.assertEqual('Charles Schumer (D-NY)', str(PoliticianNameCleaver('Charles Schumer').parse().plus_metadata('D', 'NY')))
+        self.assertEqual('Barack Obama (D)', str(PoliticianNameCleaver('Barack Obama').parse().plus_metadata('D', '')))
+        self.assertEqual('Charles Schumer (NY)', str(PoliticianNameCleaver('Charles Schumer').parse().plus_metadata('', 'NY')))
+        self.assertEqual('Jerry Leon Carroll', str(PoliticianNameCleaver('Jerry Leon Carroll').parse().plus_metadata('', ''))) # only this one guy is missing both at the moment
 

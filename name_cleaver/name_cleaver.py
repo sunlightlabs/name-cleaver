@@ -10,7 +10,7 @@ class PoliticianNameCleaver():
     def parse(self):
         self.strip_party()
         self.convert_to_standard_order() # important for "last, first", and also running mates
-        assert isinstance(self.name, Name) or isinstance(self.name, RunningMatesNames), "Names didn't give back a Name object for %s!" % self.name
+        assert isinstance(self.name, PoliticianName) or isinstance(self.name, RunningMatesNames), "Didn't give back a PoliticianName or RunningMatesNames object for %s!" % self.name
 
         return self.name.case_name_parts()
 
@@ -35,13 +35,13 @@ class PoliticianNameCleaver():
 
     def convert_name_to_obj(self, name):
         name = self.reverse_last_first(name)
-        return Name().new_from_tokens(*[x for x in name.split(' ') if x])
+        return PoliticianName().new_from_tokens(*[x for x in name.split(' ') if x])
 
     def convert_running_mates_to_obj(self):
         return RunningMatesNames(*[ self.convert_name_to_obj(x) for x in self.name.split(' & ') ])
 
 
-class Name:
+class PersonName:
     first = None
     middle = None
     last = None
@@ -103,6 +103,9 @@ class Name:
                 i += 1
 
     def __str__(self):
+        return self.name_str()
+
+    def name_str(self):
         return ' '.join([x for x in [self.first, self.middle, self.last, self.suffix] if x])
 
     def is_mixed_case(self):
@@ -134,6 +137,23 @@ class Name:
             first_letter = matches.group('first_letter')
             self.last = re.sub(mc + first_letter, mc.title() + first_letter.upper(), self.last)
 
+
+class PoliticianName(PersonName):
+    party = None
+    state = None
+
+    def plus_metadata(self, party, state):
+        self.party = party
+        self.state = state
+
+        return self
+
+    def __str__(self):
+        if self.party or self.state:
+            party_state = "-".join([x for x in [self.party, self.state] if x]) # because presidential candidates are listed without a state
+            return "{0} ({1})".format(self.name_str(), party_state)
+        else:
+            return self.name_str()
 
 class RunningMatesNames:
 
