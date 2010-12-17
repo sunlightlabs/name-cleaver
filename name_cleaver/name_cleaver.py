@@ -138,7 +138,7 @@ class PersonName:
             self.last = re.sub(mc + first_letter, mc.title() + first_letter.upper(), self.last)
 
 
-class PoliticianName(PersonName):
+class PoliticalMetadata():
     party = None
     state = None
 
@@ -155,17 +155,22 @@ class PoliticianName(PersonName):
         else:
             return self.name_str()
 
-class RunningMatesNames:
+
+class PoliticianName(PoliticalMetadata, PersonName):
+    pass
+
+
+class RunningMatesNames(PoliticalMetadata):
 
     def __init__(self, mate1, mate2):
         self.mate1 = mate1
         self.mate2 = mate2
 
-    def __str__(self):
+    def name_str(self):
         return ' & '.join([str(self.mate1), str(self.mate2)])
 
     def __repr__(self):
-        return ' & '.join([str(self.mate1), str(self.mate2)])
+        return self.__str__()
 
     def mates(self):
         return [ self.mate1, self.mate2 ]

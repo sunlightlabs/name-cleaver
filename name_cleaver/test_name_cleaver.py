@@ -74,3 +74,6 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('Charles Schumer (NY)', str(PoliticianNameCleaver('Charles Schumer').parse().plus_metadata('', 'NY')))
         self.assertEqual('Jerry Leon Carroll', str(PoliticianNameCleaver('Jerry Leon Carroll').parse().plus_metadata('', ''))) # only this one guy is missing both at the moment
 
+    def test_running_mates_with_metadata(self):
+        self.assertEqual('Ted Strickland & Lee Fischer (D-OH)', str(PoliticianNameCleaver('STRICKLAND, TED & FISCHER, LEE').parse().plus_metadata('D', 'OH')))
+
