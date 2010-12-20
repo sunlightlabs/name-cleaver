@@ -5,18 +5,18 @@ probably needs a whole bunch of refactoring.
 Installation
 ============
 
-Installation is easy::
+Installation is easy:
 
-pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
+    pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
 
 
 Upgrading
 =========
 
-Upgrading takes a little more work (you'll have to modify this a bit if you're not using virtualenv/virtualenvwrapper)::
+Upgrading takes a little more work (you'll have to modify this a bit if you're not using virtualenv/virtualenvwrapper):
 
-pip uninstall name-cleaver
-cdvirtualenv
-rm -rf src/name-cleaver
-pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
+    pip uninstall name-cleaver
+    cdvirtualenv
+    rm -rf src/name-cleaver
+    pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
 
