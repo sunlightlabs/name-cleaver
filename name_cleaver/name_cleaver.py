@@ -1,4 +1,4 @@
-import re, string, itertools
+import re
 
 SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
 
