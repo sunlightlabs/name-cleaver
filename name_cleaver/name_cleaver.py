@@ -16,7 +16,7 @@ class PoliticianNameCleaver():
 
     def strip_party(self):
         if '(' in self.name:
-            self.name = re.sub(r'\s*\(\w+\)\s*$', '', self.name)
+            self.name = re.sub(r'\s*\([^)]+\)\s*$', '', self.name)
 
     def convert_to_standard_order(self):
         if '&' in self.name:

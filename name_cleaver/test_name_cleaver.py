@@ -77,3 +77,5 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_running_mates_with_metadata(self):
         self.assertEqual('Ted Strickland & Lee Fischer (D-OH)', str(PoliticianNameCleaver('STRICKLAND, TED & FISCHER, LEE').parse().plus_metadata('D', 'OH')))
 
+    def test_names_with_weird_parenthetical_stuff(self):
+        self.assertEqual('Lynn Swann', str(PoliticianNameCleaver('SWANN, LYNN (COMMITTEE 1)').parse()))
