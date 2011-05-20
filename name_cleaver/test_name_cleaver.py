@@ -1,5 +1,4 @@
-from name_cleaver import PoliticianNameCleaver
-from nose.plugins.skip import Skip, SkipTest
+from name_cleaver import PoliticianNameCleaver, IndividualNameCleaver
 import unittest
 
 class TestPoliticianNameCleaver(unittest.TestCase):
@@ -79,3 +78,34 @@ class TestPoliticianNameCleaver(unittest.TestCase):
 
     def test_names_with_weird_parenthetical_stuff(self):
         self.assertEqual('Lynn Swann', str(PoliticianNameCleaver('SWANN, LYNN (COMMITTEE 1)').parse()))
+
+
+class IndividualNameStandardizationTests(unittest.TestCase):
+
+    def test_all_kinds_of_crazy(self):
+        self.assertEqual('Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MR').parse()))
+
+    def test_jr_and_the_like_end_up_at_the_end(self):
+        self.assertEqual('Frederick A "Tripp" Baird III', str(IndividualNameCleaver('Baird, Frederick A "Tripp" III').parse()))
+
+    def test_throw_out_mr(self):
+        self.assertEqual('T Boone Pickens', str(IndividualNameCleaver('Mr T Boone Pickens').parse()))
+        self.assertEqual('T Boone Pickens', str(IndividualNameCleaver('Mr. T Boone Pickens').parse()))
+        self.assertEqual('T Boone Pickens', str(IndividualNameCleaver('Pickens, T Boone Mr').parse()))
+        self.assertEqual('John L Nau', str(IndividualNameCleaver(' MR JOHN L NAU,').parse()))
+
+    def test_keep_the_mrs(self):
+        self.assertEqual('Mrs T Boone Pickens', str(IndividualNameCleaver('Mrs T Boone Pickens').parse()))
+        self.assertEqual('Mrs. T Boone Pickens', str(IndividualNameCleaver('Mrs. T Boone Pickens').parse()))
+        self.assertEqual('Mrs Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MRS').parse()))
+
+    def test_capitalize_roman_numeral_suffixes(self):
+        self.assertEqual('Ken Cuccinelli II', str(IndividualNameCleaver('KEN CUCCINELLI II').parse()))
+        self.assertEqual('Ken Cuccinelli II', str(IndividualNameCleaver('CUCCINELLI II, KEN').parse()))
+        self.assertEqual('Ken Cuccinelli IV', str(IndividualNameCleaver('CUCCINELLI IV, KEN').parse()))
+        self.assertEqual('Ken Cuccinelli IX', str(IndividualNameCleaver('CUCCINELLI IX, KEN').parse()))
+
+    def test_capitalize_scottish_last_names(self):
+        self.assertEqual('Ronald McDonald', str(IndividualNameCleaver('RONALD MCDONALD').parse()))
+        self.assertEqual('Old MacDonald', str(IndividualNameCleaver('OLD MACDONALD').parse()))
+
