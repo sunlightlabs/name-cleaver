@@ -1,4 +1,4 @@
-from name_cleaver import PoliticianNameCleaver
+from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver
 from nose.plugins.skip import Skip, SkipTest
 import unittest
 
@@ -79,3 +79,41 @@ class TestPoliticianNameCleaver(unittest.TestCase):
 
     def test_names_with_weird_parenthetical_stuff(self):
         self.assertEqual('Lynn Swann', str(PoliticianNameCleaver('SWANN, LYNN (COMMITTEE 1)').parse()))
+
+
+class TestOrganizationNameCleaver(unittest.TestCase):
+
+    def test_capitalize_pac(self):
+        self.assertEqual('Nancy Pelosi Leadership PAC', str(OrganizationNameCleaver('NANCY PELOSI LEADERSHIP PAC').parse()))
+
+    def test_make_single_word_names_ending_in_pac_all_uppercase(self):
+        self.assertEqual('ECEPAC', str(OrganizationNameCleaver('ECEPAC').parse()))
+
+    def test_names_starting_with_PAC(self):
+        self.assertEqual('PAC For Engineers', str(OrganizationNameCleaver('PAC FOR ENGINEERS').parse()))
+        self.assertEqual('PAC 102', str(OrganizationNameCleaver('PAC 102').parse()))
+
+    def test_doesnt_bother_names_containing_string_pac(self):
+        self.assertEqual('Pacific Trust', str(OrganizationNameCleaver('PACIFIC TRUST').parse()))
+
+    def test_capitalize_scottish_names(self):
+        self.assertEqual('McDonnell Douglas', str(OrganizationNameCleaver('MCDONNELL DOUGLAS').parse()))
+        self.assertEqual('MacDonnell Douglas', str(OrganizationNameCleaver('MACDONNELL DOUGLAS').parse()))
+
+    def test_expand(self):
+        self.assertEqual('Raytheon Corporation', OrganizationNameCleaver('Raytheon Corp.').parse().expand())
+        self.assertEqual('Massachusetts Institute of Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().expand())
+
+    def test_expand_with_two_tokens_to_expand(self):
+        self.assertEqual('Merck Company Incorporated', OrganizationNameCleaver('Merck & Co., Inc.').parse().expand())
+
+    def test_kernel(self):
+        self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().kernel())
+        self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Institute of Technology').parse().kernel())
+
+        self.assertEqual('Walsh Group', OrganizationNameCleaver('The Walsh Group').parse().kernel())
+
+        self.assertEqual('Health Net', OrganizationNameCleaver('Health Net Inc').parse().kernel())
+        self.assertEqual('Health Net', OrganizationNameCleaver('Health Net, Inc.').parse().kernel())
+
+

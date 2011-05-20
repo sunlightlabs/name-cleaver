@@ -2,95 +2,184 @@ import re
 
 SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
 
-class PoliticianNameCleaver():
 
-    def __init__(self, string):
-        self.name = string
+class Name(object):
+    scottish_re = r'(?i)\b(?P<mc>ma?c)(?P<first_letter>\w)\w+'
 
-    def parse(self):
-        self.strip_party()
-        self.convert_to_standard_order() # important for "last, first", and also running mates
-        assert isinstance(self.name, PoliticianName) or isinstance(self.name, RunningMatesNames), "Didn't give back a PoliticianName or RunningMatesNames object for %s!" % self.name
+    def primary_name_parts(self):
+        raise NotImplementedError("Subclasses of Name must implement primary_name_parts.")
 
-        return self.name.case_name_parts()
+    def is_mixed_case(self):
+        return re.match(r'[A-Z][a-z]', ' '.join([x for x in self.primary_name_parts() if x]))
 
-    def strip_party(self):
-        if '(' in self.name:
-            self.name = re.sub(r'\s*\([^)]+\)\s*$', '', self.name)
+    def uppercase_the_scots(self, name_portion):
+        matches = re.search(self.scottish_re, name_portion)
 
-    def convert_to_standard_order(self):
-        if '&' in self.name:
-            self.name = self.convert_running_mates_to_obj()
+        if matches:
+            mc = matches.group('mc')
+            first_letter = matches.group('first_letter')
+            return re.sub(mc + first_letter, mc.title() + first_letter.upper(), name_portion)
         else:
-            self.name = self.convert_name_to_obj(self.name)
-
-    def reverse_last_first(self, name):
-        split = name.split(', ')
-
-        # make sure that we don't have "Jr" preceded by a comma
-        if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
-            split.reverse()
-
-        return ' '.join(split)
-
-    def convert_name_to_obj(self, name):
-        name = self.reverse_last_first(name)
-        return PoliticianName().new_from_tokens(*[x for x in name.split(' ') if x])
-
-    def convert_running_mates_to_obj(self):
-        return RunningMatesNames(*[ self.convert_name_to_obj(x) for x in self.name.split(' & ') ])
+            return name_portion
 
 
-class PersonName:
+
+class OrganizationName(Name):
+    abbreviations = {
+        'assn': 'Association',
+        'cmte': 'Committee',
+        'cltn': 'Coalition',
+        'inst': 'Institute',
+        'co': 'Company',
+        'corp': 'Corporation',
+        'us': 'United States',
+        'dept': 'Department',
+        'assoc': 'Associates',
+        'natl': 'National',
+        'nat\'l': 'National',
+        'intl': 'International',
+        'inc': 'Incorporated',
+        'llc': 'LLC',
+        'plc': 'PLC',
+        'ltd': 'Limited',
+        'lp': 'LP',
+    }
+    filler_words = 'The Of In For'.split()
+
+    name = None
+
+    #suffix = None
+
+    def new(self, name):
+        self.name = name
+        return self
+        #self.primary_name = primary
+        #self.suffix = suffix
+
+    def case_name_parts(self):
+        if not self.is_mixed_case():
+            self.name = self.name.title()
+            self.name = self.uppercase_the_scots(self.name)
+
+            if re.match(r'(?i)^\w*PAC$', self.name):
+                self.name = self.name.upper() # if there's only one word that ends in PAC, make the whole thing uppercase
+            else:
+                self.name = re.sub(r'(?i)\bpac\b', 'PAC', self.name) # otherwise just uppercase the PAC part
+
+            self.name = self.uppercase_the_scots(self.name)
+
+        return self
+
+    def primary_name_parts(self):
+        return [ self.name ]
+
+    def __str__(self):
+        return self.name
+
+    def without_punctuation(self):
+        return re.sub(r'[,.*&:;]*', '', self.name)
+
+    def expand(self):
+        return ' '.join(self.abbreviations.get(w.lower(), w) for w in self.without_punctuation().split())
+
+    def kernel(self):
+        kernel = ' '.join([ x for x in self.expand().split() if x.lower() not in [ y.lower() for y in self.abbreviations.values() + self.filler_words ]])
+        return kernel
+
+
+
+class PersonName(Name):
+    honorific = None
     first = None
     middle = None
     last = None
     suffix = None
 
     family_name_prefixes = ('de', 'di', 'du', 'la', 'van', 'von')
+    allowed_honorifics = ['mrs']
 
     def new(self, first, last, **kwargs):
         self.first = first.strip()
         self.last = last.strip()
-        self.middle = kwargs.get('middle', None)
+
+        self.middle = kwargs.get('middle')
         if self.middle:
             self.middle = self.middle.strip()
-        self.suffix = kwargs.get('suffix', None)
+
+        self.suffix = kwargs.get('suffix')
         if self.suffix:
             self.suffix = self.suffix.strip()
 
+        self.honorific = kwargs.get('honorific')
+        if self.honorific:
+            self.honorific = self.honorific.strip()
+
         return self
 
-    def new_from_tokens(self, *args):
-        args = [ x.strip() for x in args if not re.match(r'^[("]', x) ]
+    def new_from_tokens(self, *args, **kwargs):
+        """
+            Takes in a name that has been split by spaces.
+            Names which are in [last, first] format need to be preprocessed.
+
+            This can take name parts in in these orders:
+            first, middle, last, suffix, honorific
+            first, middle, last, honorific
+            first, middle, last, suffix
+            first, last, suffix
+            first, last, honorific
+            first, middle, last
+            first, last
+            last
+        """
+        if kwargs.get('allow_quoted_nicknames'):
+            args = [ x.strip() for x in args if not re.match(r'^[(]', x) ]
+        else:
+            args = [ x.strip() for x in args if not re.match(r'^[("]', x) ]
 
         self.detect_and_fix_two_part_name(args)
 
-        if len(args) == 4:
-            if self.is_a_suffix(args[-1]):
+        num_parts = len(args)
+
+        if num_parts == 5:
+            self.first, self.middle, self.last, self.suffix, self.honorific = args
+
+        elif num_parts == 4:
+            if self.is_an_honorific(args[-1]):
+                self.first, self.middle, self.last, self.honorific = args
+            elif self.is_a_suffix(args[-1]):
                 self.first, self.middle, self.last, self.suffix = args
             else:
+                # if the last isn't an honorific or a suffix,
+                # consider it the last name and consider
+                # the middle two parts as the middle name
                 self.first = args[0]
                 self.middle = ' '.join(args[1:3])
                 self.last = args[3]
 
-        elif len(args) == 3:
-
-            if self.is_a_suffix(args[-1]):
+        elif num_parts == 3:
+            if self.is_an_honorific(args[-1]):
+                self.first, self.last, self.honorific = args
+            elif self.is_a_suffix(args[-1]):
                 self.first, self.last, self.suffix = args
             else:
                 self.first, self.middle, self.last = args
 
-        elif len(args) == 2:
+        elif num_parts == 2:
             self.first, self.last = args
 
-        elif len(args) == 1:
+        elif num_parts == 1:
             self.last = args[0]
+
+        else:
+            raise "The name was empty."
 
         return self
 
     def is_a_suffix(self, name_part):
         return re.match(r'(?i)^%s$' % SUFFIX_RE, name_part)
+
+    def is_an_honorific(self, name_part):
+        return re.match(r'^(?i)\s*m[rs]s?.?\s*$', name_part)
 
     def detect_and_fix_two_part_name(self, args):
         i = 0
@@ -106,10 +195,13 @@ class PersonName:
         return self.name_str()
 
     def name_str(self):
-        return ' '.join([x for x in [self.first, self.middle, self.last, self.suffix] if x])
-
-    def is_mixed_case(self):
-        return re.match(r'[A-Z][a-z]', ' '.join([x for x in [self.first, self.last] if x]))
+        return ' '.join([x.strip() for x in [
+            self.honorific if self.honorific and self.honorific.lower() in self.allowed_honorifics else '',
+            self.first, 
+            self.middle, 
+            self.last, 
+            self.suffix
+        ] if x])
 
     def case_name_parts(self):
         if not self.is_mixed_case():
@@ -117,7 +209,7 @@ class PersonName:
 
             if self.last:
                 self.last = self.last.title()
-                self.uppercase_the_scots()
+                self.last = self.uppercase_the_scots(self.last)
 
             self.middle = self.middle.title() if self.middle else None
 
@@ -129,13 +221,9 @@ class PersonName:
 
         return self
 
-    def uppercase_the_scots(self):
-        matches = re.search(r'(?i)\b(?P<mc>ma?c)(?P<first_letter>\w)\w+', self.last)
+    def primary_name_parts(self):
+        return [ self.first, self.last ]
 
-        if matches:
-            mc = matches.group('mc')
-            first_letter = matches.group('first_letter')
-            self.last = re.sub(mc + first_letter, mc.title() + first_letter.upper(), self.last)
 
 
 class PoliticalMetadata():
@@ -177,7 +265,8 @@ class RunningMatesNames(PoliticalMetadata):
 
     def is_mixed_case(self):
         for mate in self.mates():
-            if mate.is_mixed_case(): return True
+            if mate.is_mixed_case():
+                return True
 
         return False
 
@@ -187,8 +276,106 @@ class RunningMatesNames(PoliticalMetadata):
 
         return self
 
-    def uppercase_the_scots(self):
-        for mate in self.mates():
-            mate.uppercase_the_scots()
+
+
+class IndividualNameCleaver(object):
+    object_class = PersonName
+
+    def __init__(self, string):
+        self.name = string
+
+    def parse(self):
+        name, honorific, suffix = self.separate_affixes(self.name)
+        print 'name: {0}; honorific: {1}; suffix: {2}'.format(name, honorific, suffix)
+        self.name = self.convert_name_to_obj(name, honorific, suffix)
+        assert isinstance(self.name, PersonName), "Didn't give back a PersonName object for %s!" % self.name
+
+        return self.name.case_name_parts()
+
+    def separate_affixes(self, name):
+        # this should match both honorifics (mr/mrs/ms) and jr/sr/II/III
+        matches = re.search(r'(?i)^\s*(?P<name>.*)\b((?P<honorific>m[rs]s?[.,]?)|(?P<suffix>([js]r|I{2,})))?\s*$', name)
+        if matches:
+            return matches.group('name', 'honorific', 'suffix')
+        else:
+            return name, None, None
+
+    def reverse_last_first(self, name):
+        split = name.split(', ')
+
+        # make sure that we don't have "Jr" preceded by a comma
+        if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
+            split.reverse()
+
+        return ' '.join(split)
+
+    def convert_name_to_obj(self, name, honorific, suffix):
+        name = self.reverse_last_first(name)
+
+        name = re.sub(r'\d{2,}\s*$', '', name) # strip any trailing numbers
+        name = re.sub(r'^(?i)\s*m[rs]s?\.?\s+', '', name) # strip leading 'Mr' if not caught by the other algorithm (e.g. the name was in first last format to begin with)
+        name = ' '.join([x.strip() for x in [honorific, name, suffix] if x])
+
+        return PersonName().new_from_tokens(*[x for x in name.split(' ')], allow_quoted_nicknames=True)
+
+
+
+class PoliticianNameCleaver(IndividualNameCleaver):
+
+    object_class = PoliticianName
+
+    def __init__(self, string):
+        super(PoliticianNameCleaver, self).__init__(string)
+
+    def parse(self):
+        self.strip_party()
+        self.convert_to_standard_order() # important for "last, first", and also running mates
+        assert isinstance(self.name, PoliticianName) or isinstance(self.name, RunningMatesNames), "Didn't give back a PoliticianName or RunningMatesNames object for %s!" % self.name
+
+        return self.name.case_name_parts()
+
+    def strip_party(self):
+        if '(' in self.name:
+            self.name = re.sub(r'\s*\([^)]+\)\s*$', '', self.name)
+
+    def convert_to_standard_order(self):
+        if '&' in self.name:
+            self.name = self.convert_running_mates_to_obj()
+        else:
+            self.name = self.convert_name_to_obj(self.name)
+
+    def reverse_last_first(self, name):
+        split = name.split(', ')
+
+        # make sure that we don't have "Jr" preceded by a comma
+        if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
+            split.reverse()
+
+        return ' '.join(split)
+
+    def convert_name_to_obj(self, name):
+        name = self.reverse_last_first(name)
+        return PoliticianName().new_from_tokens(*[x for x in name.split(' ') if x])
+
+    def convert_running_mates_to_obj(self):
+        return RunningMatesNames(*[ self.convert_name_to_obj(x) for x in self.name.split(' & ') ])
+
+
+
+class OrganizationNameCleaver(object):
+    def __init__(self, string):
+        self.name = string
+
+    def parse(self, long_form=False):
+        self.name = self.name.strip()
+
+        self.name = OrganizationName().new(self.name)
+        assert isinstance(self.name, OrganizationName)
+
+        return self.name.case_name_parts()
+
+    def convert_name_to_obj(self):
+        self.name = OrganizationName().new(self.name)
+
 
 
