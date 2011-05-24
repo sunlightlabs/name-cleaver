@@ -32,6 +32,7 @@ class OrganizationName(Name):
         'inst': 'Institute',
         'co': 'Company',
         'corp': 'Corporation',
+        'fzco': 'Company',
         'us': 'United States',
         'dept': 'Department',
         'assoc': 'Associates',
