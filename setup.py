@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 f = open(os.path.join(os.path.dirname(__file__), 'README'))
 readme = f.read()
@@ -7,7 +7,7 @@ f.close()
 
 setup(
     name='name-cleaver',
-    version='0.1.5',
+    version='0.1.6',
     description='Name parser and formatter (for politicians, individuals, and organizations)',
     long_description=readme,
     author='Alison Rowland',

@@ -105,15 +105,24 @@ class TestOrganizationNameCleaver(unittest.TestCase):
         self.assertEqual('Massachusetts Institute of Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().expand())
 
     def test_expand_with_two_tokens_to_expand(self):
-        self.assertEqual('Merck Company Incorporated', OrganizationNameCleaver('Merck & Co., Inc.').parse().expand())
+        self.assertEqual('Merck & Company Incorporated', OrganizationNameCleaver('Merck & Co., Inc.').parse().expand())
+
+    def test_dont_strip_after_hyphens_too_soon_in_a_name(self):
+        self.assertEqual('Us-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel()) 
+        self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel()) 
+
+    def test_strip_hyphens_more_than_three_characters_into_a_name(self):
+        # This is not ideal for this name, but we can't get the best for all cases
+        self.assertEqual('F Hoffmann', OrganizationNameCleaver('F. HOFFMANN-LA ROCHE LTD and its Affiliates').parse().kernel()) 
 
     def test_kernel(self):
         self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().kernel())
         self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Institute of Technology').parse().kernel())
 
-        self.assertEqual('Walsh Group', OrganizationNameCleaver('The Walsh Group').parse().kernel())
+        self.assertEqual('Walsh', OrganizationNameCleaver('The Walsh Group').parse().kernel())
 
         self.assertEqual('Health Net', OrganizationNameCleaver('Health Net Inc').parse().kernel())
         self.assertEqual('Health Net', OrganizationNameCleaver('Health Net, Inc.').parse().kernel())
 
+        self.assertEqual('Distilled Spirits Council', OrganizationNameCleaver('Distilled Spirits Council of the U.S., Inc.').parse().kernel())
 

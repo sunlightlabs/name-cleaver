@@ -26,13 +26,17 @@ class Name(object):
 
 class OrganizationName(Name):
     abbreviations = {
+        'assns': 'Associations',
         'assn': 'Association',
         'cmte': 'Committee',
         'cltn': 'Coalition',
         'inst': 'Institute',
-        'co': 'Company',
         'corp': 'Corporation',
+        'co': 'Company',
+        'fedn' : 'Federation',
+        'fed': 'Federal',
         'fzco': 'Company',
+        'usa': 'USA',
         'us': 'United States',
         'dept': 'Department',
         'assoc': 'Associates',
@@ -41,11 +45,17 @@ class OrganizationName(Name):
         'intl': 'International',
         'inc': 'Incorporated',
         'llc': 'LLC',
+        'llp': 'LLP',
+        'lp': 'LP',
         'plc': 'PLC',
         'ltd': 'Limited',
-        'lp': 'LP',
+        'univ': 'University',
+        'colls': 'Colleges',
+        'coll': 'College',
+        'amer': 'American',
+        'ed': 'Educational',
     }
-    filler_words = 'The Of In For'.split()
+    filler_words = 'The And Of In For Group'.split()
 
     name = None
 
@@ -77,14 +87,32 @@ class OrganizationName(Name):
     def __str__(self):
         return self.name
 
+    def without_extra_phrases(self):
+        """Removes parenthethical and dashed phrases"""
+        # the last parenthesis is optional, because sometimes they are truncated
+        name = re.sub(r'\s*\([^)]*\)?\s*$', '', self.name)
+        name = re.sub(r'(?i)\s* formerly.*$', '', name)
+        name = re.sub(r'(?i)\s*and its affiliates$', '', name)
+        name = re.sub(r'\bet al\b', '', name)
+        # strip everything after the hyphen if there are at least four characters preceding it
+        return re.sub(r'(\w{4,})-+.*$', '\\1', name)
+
     def without_punctuation(self):
-        return re.sub(r'[,.*&:;]*', '', self.name)
+        name = re.sub(r'/', ' ', self.without_extra_phrases())
+        #return re.sub(r'[,.*&:;]*', '', name)
+        return re.sub(r'[,.*:;]*', '', name)
 
     def expand(self):
         return ' '.join(self.abbreviations.get(w.lower(), w) for w in self.without_punctuation().split())
 
     def kernel(self):
-        kernel = ' '.join([ x for x in self.expand().split() if x.lower() not in [ y.lower() for y in self.abbreviations.values() + self.filler_words ]])
+        stop_words = [ y.lower() for y in self.abbreviations.values() + self.filler_words ]
+        kernel = ' '.join([ x for x in self.expand().split() if x.lower() not in stop_words ])
+
+        # this is a hack to get around the fact that this is the only two-word phrase we want to block
+        # amongst our stop words. if we end up with more, we may need a better way to do this
+        kernel = re.sub(r'\s*United States', '', kernel)
+
         return kernel
 
 
@@ -198,9 +226,9 @@ class PersonName(Name):
     def name_str(self):
         return ' '.join([x.strip() for x in [
             self.honorific if self.honorific and self.honorific.lower() in self.allowed_honorifics else '',
-            self.first, 
-            self.middle, 
-            self.last, 
+            self.first,
+            self.middle,
+            self.last,
             self.suffix
         ] if x])
 
