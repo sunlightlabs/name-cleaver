@@ -1,6 +1,7 @@
 from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver
-from nose.plugins.skip import Skip, SkipTest
+#from nose.plugins.skip import Skip, SkipTest
 import unittest
+
 
 class TestPoliticianNameCleaver(unittest.TestCase):
 
@@ -80,6 +81,9 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_names_with_weird_parenthetical_stuff(self):
         self.assertEqual('Lynn Swann', str(PoliticianNameCleaver('SWANN, LYNN (COMMITTEE 1)').parse()))
 
+    def test_handles_empty_names(self):
+        self.assertEqual('', str(PoliticianNameCleaver('').parse()))
+
 
 class TestOrganizationNameCleaver(unittest.TestCase):
 
@@ -125,4 +129,8 @@ class TestOrganizationNameCleaver(unittest.TestCase):
         self.assertEqual('Health Net', OrganizationNameCleaver('Health Net, Inc.').parse().kernel())
 
         self.assertEqual('Distilled Spirits Council', OrganizationNameCleaver('Distilled Spirits Council of the U.S., Inc.').parse().kernel())
+
+    def test_handles_empty_names(self):
+        self.assertEqual('', str(OrganizationNameCleaver('').parse()))
+
 

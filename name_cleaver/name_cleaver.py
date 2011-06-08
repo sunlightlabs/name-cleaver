@@ -200,7 +200,8 @@ class PersonName(Name):
             self.last = args[0]
 
         else:
-            raise "The name was empty."
+            self.first = ''
+            self.last = ''
 
         return self
 
