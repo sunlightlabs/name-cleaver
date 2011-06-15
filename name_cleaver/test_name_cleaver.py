@@ -1,4 +1,5 @@
-from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver
+from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver, \
+        IndividualNameCleaver
 #from nose.plugins.skip import Skip, SkipTest
 import unittest
 
@@ -84,6 +85,9 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_handles_empty_names(self):
         self.assertEqual('', str(PoliticianNameCleaver('').parse()))
 
+    def test_capitalize_irish_names(self):
+        self.assertEqual('Sean O\'Leary', str(PoliticianNameCleaver('SEAN O\'LEARY').parse()))
+
 
 class TestOrganizationNameCleaver(unittest.TestCase):
 
@@ -112,14 +116,17 @@ class TestOrganizationNameCleaver(unittest.TestCase):
         self.assertEqual('Merck & Company Incorporated', OrganizationNameCleaver('Merck & Co., Inc.').parse().expand())
 
     def test_dont_strip_after_hyphens_too_soon_in_a_name(self):
-        self.assertEqual('Us-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel()) 
-        self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel()) 
+        self.assertEqual('US-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel())
+        self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel())
 
     def test_strip_hyphens_more_than_three_characters_into_a_name(self):
         # This is not ideal for this name, but we can't get the best for all cases
-        self.assertEqual('F Hoffmann', OrganizationNameCleaver('F. HOFFMANN-LA ROCHE LTD and its Affiliates').parse().kernel()) 
+        self.assertEqual('F Hoffmann', OrganizationNameCleaver('F. HOFFMANN-LA ROCHE LTD and its Affiliates').parse().kernel())
 
     def test_kernel(self):
+        """
+        Intended to get only the unique/meaningful words out of a name
+        """
         self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().kernel())
         self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Institute of Technology').parse().kernel())
 
@@ -133,4 +140,44 @@ class TestOrganizationNameCleaver(unittest.TestCase):
     def test_handles_empty_names(self):
         self.assertEqual('', str(OrganizationNameCleaver('').parse()))
 
+
+
+class IndividualNameStandardizationTests(unittest.TestCase):
+
+    def test_all_kinds_of_crazy(self):
+        self.assertEqual('Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MR').parse()))
+
+    def test_jr_and_the_like_end_up_at_the_end(self):
+        self.assertEqual('Frederick A "Tripp" Baird III', str(IndividualNameCleaver('Baird, Frederick A "Tripp" III').parse()))
+
+    def test_nicknames_suffixes_and_honorifics(self):
+        self.assertEqual('Frederick A "Tripp" Baird III', str(IndividualNameCleaver('Baird, Frederick A "Tripp" III Mr').parse()))
+        self.assertEqual('Frederick A "Tripp" Baird III', str(IndividualNameCleaver('Baird, Mr Frederick A "Tripp" III').parse()))
+
+    def test_throw_out_mr(self):
+        self.assertEqual('T Boone Pickens', str(IndividualNameCleaver('Mr T Boone Pickens').parse()))
+        self.assertEqual('T Boone Pickens', str(IndividualNameCleaver('Mr. T Boone Pickens').parse()))
+        self.assertEqual('T Boone Pickens', str(IndividualNameCleaver('Pickens, T Boone Mr').parse()))
+        self.assertEqual('John L Nau', str(IndividualNameCleaver(' MR JOHN L NAU,').parse()))
+
+    def test_keep_the_mrs(self):
+        self.assertEqual('Mrs T Boone Pickens', str(IndividualNameCleaver('Mrs T Boone Pickens').parse()))
+        self.assertEqual('Mrs. T Boone Pickens', str(IndividualNameCleaver('Mrs. T Boone Pickens').parse()))
+        self.assertEqual('Mrs Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MRS').parse()))
+
+    def test_capitalize_roman_numeral_suffixes(self):
+        self.assertEqual('Ken Cuccinelli II', str(IndividualNameCleaver('KEN CUCCINELLI II').parse()))
+        self.assertEqual('Ken Cuccinelli II', str(IndividualNameCleaver('CUCCINELLI II, KEN').parse()))
+        self.assertEqual('Ken Cuccinelli IV', str(IndividualNameCleaver('CUCCINELLI IV, KEN').parse()))
+        self.assertEqual('Ken Cuccinelli IX', str(IndividualNameCleaver('CUCCINELLI IX, KEN').parse()))
+
+    def test_capitalize_scottish_last_names(self):
+        self.assertEqual('Ronald McDonald', str(IndividualNameCleaver('RONALD MCDONALD').parse()))
+        self.assertEqual('Old MacDonald', str(IndividualNameCleaver('OLD MACDONALD').parse()))
+
+
+class TestCapitalization(unittest.TestCase):
+
+    def test_overrides_dumb_python_titlecasing_for_apostrophes(self):
+        self.assertEqual('Phoenix Women\'s Health Center', str(OrganizationNameCleaver('PHOENIX WOMEN\'S HEALTH CENTER').parse()))
 

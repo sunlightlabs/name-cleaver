@@ -1,6 +1,5 @@
 This is the name parser and standardizer for the datacommons project.
-For the moment, it only supports standardizing politician names, and
-probably needs a whole bunch of refactoring.
+It now supports politician, individual and organization names.
 
 Installation
 ============
