@@ -22,6 +22,9 @@ class Name(object):
         else:
             return name_portion
 
+    def fix_case_for_possessives(self, name):
+        return re.sub(r"(\w+)'S\b", "\\1's", name)
+
 
 
 class OrganizationName(Name):
@@ -78,6 +81,7 @@ class OrganizationName(Name):
                 self.name = re.sub(r'(?i)\bpac\b', 'PAC', self.name) # otherwise just uppercase the PAC part
 
             self.name = self.uppercase_the_scots(self.name)
+            self.name = self.fix_case_for_possessives(self.name)
 
         return self
 

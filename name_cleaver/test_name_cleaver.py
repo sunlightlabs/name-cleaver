@@ -112,12 +112,12 @@ class TestOrganizationNameCleaver(unittest.TestCase):
         self.assertEqual('Merck & Company Incorporated', OrganizationNameCleaver('Merck & Co., Inc.').parse().expand())
 
     def test_dont_strip_after_hyphens_too_soon_in_a_name(self):
-        self.assertEqual('Us-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel()) 
-        self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel()) 
+        self.assertEqual('Us-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel())
+        self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel())
 
     def test_strip_hyphens_more_than_three_characters_into_a_name(self):
         # This is not ideal for this name, but we can't get the best for all cases
-        self.assertEqual('F Hoffmann', OrganizationNameCleaver('F. HOFFMANN-LA ROCHE LTD and its Affiliates').parse().kernel()) 
+        self.assertEqual('F Hoffmann', OrganizationNameCleaver('F. HOFFMANN-LA ROCHE LTD and its Affiliates').parse().kernel())
 
     def test_kernel(self):
         self.assertEqual('Massachusetts Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().kernel())
@@ -133,4 +133,10 @@ class TestOrganizationNameCleaver(unittest.TestCase):
     def test_handles_empty_names(self):
         self.assertEqual('', str(OrganizationNameCleaver('').parse()))
 
+
+
+class TestCapitalization(unittest.TestCase):
+
+    def test_overrides_dumb_python_titlecasing_for_apostrophes(self):
+        self.assertEqual('Phoenix Women\'s Health Center', str(OrganizationNameCleaver('PHOENIX WOMEN\'S HEALTH CENTER').parse()))
 
