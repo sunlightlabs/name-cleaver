@@ -1,6 +1,5 @@
 from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver, \
         IndividualNameCleaver
-#from nose.plugins.skip import Skip, SkipTest
 import unittest
 
 
@@ -142,7 +141,7 @@ class TestOrganizationNameCleaver(unittest.TestCase):
 
 
 
-class IndividualNameStandardizationTests(unittest.TestCase):
+class TestIndividualNameCleaver(unittest.TestCase):
 
     def test_all_kinds_of_crazy(self):
         self.assertEqual('Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MR').parse()))

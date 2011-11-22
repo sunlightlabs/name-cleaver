@@ -103,7 +103,6 @@ class OrganizationName(Name):
 
     def without_punctuation(self):
         name = re.sub(r'/', ' ', self.without_extra_phrases())
-        #return re.sub(r'[,.*&:;]*', '', name)
         return re.sub(r'[,.*:;+]*', '', name)
 
     def expand(self):
@@ -364,7 +363,6 @@ class IndividualNameCleaver(object):
         return ' '.join(split)
 
     def convert_name_to_obj(self, name, nick, honorific, suffix):
-        #name = re.sub(r'\d{2,}\s*$', '', name) # strip any trailing numbers
         name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
 
         return PersonName().new_from_tokens(*[x for x in name.split(' ')], allow_quoted_nicknames=True)
