@@ -1,5 +1,6 @@
 from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver, \
         IndividualNameCleaver
+
 import unittest
 
 
@@ -179,4 +180,15 @@ class TestCapitalization(unittest.TestCase):
 
     def test_overrides_dumb_python_titlecasing_for_apostrophes(self):
         self.assertEqual('Phoenix Women\'s Health Center', str(OrganizationNameCleaver('PHOENIX WOMEN\'S HEALTH CENTER').parse()))
+
+
+class TestOrganizationNameCleaverForIndustries(unittest.TestCase):
+
+    def test_capitalizes_letter_after_slash(self):
+        self.assertEqual('Health Services/Hmos', str(OrganizationNameCleaver('HEALTH SERVICES/HMOS').parse()))
+        self.assertEqual('Lawyers/Law Firms', str(OrganizationNameCleaver('LAWYERS/LAW FIRMS').parse()))
+
+    def test_capitalizes_letter_after_hyphen(self):
+        self.assertEqual('Non-Profit Institutions', str(OrganizationNameCleaver('NON-PROFIT INSTITUTIONS').parse()))
+        self.assertEqual('Pro-Israel', str(OrganizationNameCleaver('PRO-ISRAEL').parse()))
 
