@@ -324,6 +324,10 @@ class IndividualNameCleaver(object):
 
     def parse(self):
         name, honorific, suffix, nick = self.separate_affixes(self.name)
+
+        if honorific and not honorific.endswith('.'):
+            honorific += '.'
+
         name = self.reverse_last_first(name)
         self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
         assert isinstance(self.name, PersonName), "Didn't give back a PersonName object for %s!" % self.name

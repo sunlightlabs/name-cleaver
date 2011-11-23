@@ -161,9 +161,12 @@ class TestIndividualNameCleaver(unittest.TestCase):
         self.assertEqual('John L Nau', str(IndividualNameCleaver(' MR JOHN L NAU,').parse()))
 
     def test_keep_the_mrs(self):
-        self.assertEqual('Mrs T Boone Pickens', str(IndividualNameCleaver('Mrs T Boone Pickens').parse()))
+        self.assertEqual('Mrs. T Boone Pickens', str(IndividualNameCleaver('Mrs T Boone Pickens').parse()))
         self.assertEqual('Mrs. T Boone Pickens', str(IndividualNameCleaver('Mrs. T Boone Pickens').parse()))
-        self.assertEqual('Mrs Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MRS').parse()))
+        self.assertEqual('Mrs. Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MRS').parse()))
+
+    def test_mrs_walton(self):
+        self.assertEqual('Mrs. Jim Walton', str(IndividualNameCleaver('WALTON, JIM MRS').parse()))
 
     def test_capitalize_roman_numeral_suffixes(self):
         self.assertEqual('Ken Cuccinelli II', str(IndividualNameCleaver('KEN CUCCINELLI II').parse()))
