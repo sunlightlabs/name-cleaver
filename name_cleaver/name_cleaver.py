@@ -341,8 +341,8 @@ class IndividualNameCleaver(object):
         name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}\b)', name)
         name, nick = self.extract_matching_portion(r'("[^"]*")', name)
 
-        # strip trailing non alphanumeric characters except period
-        name = re.sub(r'[^.a-zA-Z0-9]$', '', name)
+        # strip trailing non alphanumeric characters
+        name = re.sub(r'[^a-zA-Z0-9]$', '', name)
 
         return name, honorific, suffix, nick
 
