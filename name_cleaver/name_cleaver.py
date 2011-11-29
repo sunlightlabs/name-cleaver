@@ -242,7 +242,10 @@ class PersonName(Name):
         if not self.is_mixed_case():
             self.honorific = self.honorific.title() if self.honorific else None
             self.nick = self.nick.title() if self.nick else None
-            self.first = self.first.title() if self.first else None
+
+            if self.first:
+                self.first = self.first.title()
+                self.first = self.capitalize_and_punctuate_initials(self.first)
 
             if self.last:
                 self.last = self.last.title()
@@ -258,6 +261,19 @@ class PersonName(Name):
                     self.suffix = self.suffix.upper()
 
         return self
+
+    def is_only_initials(self, name_part):
+        """
+        Let's assume we have a name like "B.J." if the name is two to three i
+        characters and consonants only.
+        """
+        return re.match(r'(?i)[^aeiouy]{2,3}$', name_part)
+
+    def capitalize_and_punctuate_initials(self, name_part):
+        if self.is_only_initials(name_part):
+            return ''.join([ '{0}.'.format(x.upper()) for x in name_part])
+        else:
+            return name_part
 
     def primary_name_parts(self):
         return [ self.first, self.last ]
