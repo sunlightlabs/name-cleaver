@@ -184,6 +184,9 @@ class TestIndividualNameCleaver(unittest.TestCase):
     def test_capitalizes_and_punctuates_initials(self):
         self.assertEqual('B.L. Schwartz', str(IndividualNameCleaver('SCHWARTZ, BL').parse()))
 
+    def test_capitalizes_initials_but_not_honorifics(self):
+        self.assertEqual('John Koza', str(IndividualNameCleaver('KOZA, DR JOHN').parse()))
+
 
 class TestCapitalization(unittest.TestCase):
 

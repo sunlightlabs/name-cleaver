@@ -210,7 +210,7 @@ class PersonName(Name):
         return re.match(r'(?i)^%s$' % SUFFIX_RE, name_part)
 
     def is_an_honorific(self, name_part):
-        return re.match(r'^(?i)\s*m[rs]s?.?\s*$', name_part)
+        return re.match(r'^(?i)\s*[dm][rs]s?.?\s*$', name_part)
 
     def is_a_nickname(self, name_part):
         return re.match(r'^["(].*[")]$', name_part)
@@ -356,7 +356,7 @@ class IndividualNameCleaver(object):
 
     def separate_affixes(self, name):
         # this should match both honorifics (mr/mrs/ms) and jr/sr/II/III
-        name, honorific = self.extract_matching_portion(r'\b(?P<honorific>m[rs]s?[.,]?)', name)
+        name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[md][rs]s?[.,]?)', name)
         name, suffix = self.extract_matching_portion(r'\b(?P<suffix>([js]r|I{2,}))\b', name)
         name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}\b)', name)
         name, nick = self.extract_matching_portion(r'("[^"]*")', name)
