@@ -52,7 +52,7 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('La Mere', PoliticianNameCleaver('Albert J La Mere').parse().last)
         self.assertEqual('Di Souza', PoliticianNameCleaver('Dinesh Di Souza').parse().last)
 
-    def deals_with_last_names_that_look_like_two_part_but_are_not(self):
+    def test_deals_with_last_names_that_look_like_two_part_but_are_not(self):
         name = PoliticianNameCleaver('Quoc Van (D)').parse()
         self.assertEqual('Quoc', name.first)
         self.assertEqual('Van', name.last)
