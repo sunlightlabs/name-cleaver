@@ -108,6 +108,9 @@ class TestOrganizationNameCleaver(unittest.TestCase):
         self.assertEqual('McDonnell Douglas', str(OrganizationNameCleaver('MCDONNELL DOUGLAS').parse()))
         self.assertEqual('MacDonnell Douglas', str(OrganizationNameCleaver('MACDONNELL DOUGLAS').parse()))
 
+    def test_dont_capitalize_just_anything_starting_with_mac(self):
+        self.assertEqual('Machinists/Aerospace Workers Union', str(OrganizationNameCleaver('MACHINISTS/AEROSPACE WORKERS UNION').parse()))
+
     def test_expand(self):
         self.assertEqual('Raytheon Corporation', OrganizationNameCleaver('Raytheon Corp.').parse().expand())
         self.assertEqual('Massachusetts Institute of Technology', OrganizationNameCleaver('Massachusetts Inst. of Technology').parse().expand())

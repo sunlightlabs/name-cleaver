@@ -4,7 +4,7 @@ SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
 
 
 class Name(object):
-    scottish_re = r'(?i)\b(?P<mc>ma?c)(?P<first_letter>\w)\w+'
+    scottish_re = r'(?i)\b(?P<mc>ma?c)(?!hin)(?P<first_letter>\w)\w+'
 
     def primary_name_parts(self):
         raise NotImplementedError("Subclasses of Name must implement primary_name_parts.")
