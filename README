@@ -8,14 +8,20 @@ Installation is easy:
 
     pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
 
+Usage
+=====
 
-Upgrading
-=========
+Basic usage is the same for each type of name, just import the relevant NameCleaver class from one of:
 
-Upgrading takes a little more work (you'll have to modify this a bit if you're not using virtualenv/virtualenvwrapper):
+* `PoliticianNameCleaver`
+* `IndividualNameCleaver`
+* `OrganizationNameCleaver`
 
-    pip uninstall name-cleaver
-    cdvirtualenv
-    rm -rf src/name-cleaver
-    pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
+Example:
+
+    from name_cleaver import PolicitianNameCleaver
+    smith = PoliticianNameCleaver('Smith, Robert J').parse()
+
+    print str(smith) => "Robert J Smith"
+
 
