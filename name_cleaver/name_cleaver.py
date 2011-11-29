@@ -216,6 +216,10 @@ class PersonName(Name):
         return re.match(r'^["(].*[")]$', name_part)
 
     def detect_and_fix_two_part_name(self, args):
+        """
+        This detects common family name prefixes and joins them to the last name,
+        so names like "De Kuyper" don't end up with "De" as a middle name.
+        """
         i = 0
         while i < len(args) - 1:
             if args[i].lower() in self.family_name_prefixes:
