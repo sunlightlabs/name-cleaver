@@ -388,7 +388,7 @@ class IndividualNameCleaver(object):
     def convert_name_to_obj(self, name, nick, honorific, suffix):
         name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
 
-        return PersonName().new_from_tokens(*[x for x in name.split(' ')], allow_quoted_nicknames=True)
+        return PersonName().new_from_tokens(*[x for x in name.split(' ')], **{'allow_quoted_nicknames':True})
 
 
 
@@ -439,6 +439,5 @@ class OrganizationNameCleaver(object):
 
     def convert_name_to_obj(self):
         self.name = OrganizationName().new(self.name)
-
 
 
