@@ -187,6 +187,9 @@ class TestIndividualNameCleaver(unittest.TestCase):
     def test_capitalizes_initials_but_not_honorifics(self):
         self.assertEqual('John Koza', str(IndividualNameCleaver('KOZA, DR JOHN').parse()))
 
+    def test_doesnt_overzealously_detect_doctors(self):
+        self.assertEqual('Drew Maloney', str(IndividualNameCleaver('Maloney, Drew').parse()))
+
 
 class TestCapitalization(unittest.TestCase):
 
