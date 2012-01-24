@@ -88,8 +88,11 @@ class OrganizationName(Name):
     def primary_name_parts(self):
         return [ self.without_extra_phrases() ]
 
+    def __unicode__(self):
+        return unicode(self.name)
+
     def __str__(self):
-        return self.name
+        return unicode(self.name).encode('utf-8')
 
     def without_extra_phrases(self):
         """Removes parenthethical and dashed phrases"""
@@ -229,8 +232,11 @@ class PersonName(Name):
             else:
                 i += 1
 
+    def __unicode__(self):
+        return unicode(self.name_str())
+
     def __str__(self):
-        return self.name_str()
+        return unicode(self.name_str()).encode('utf-8')
 
     def name_str(self):
         return ' '.join([x.strip() for x in [
@@ -296,10 +302,10 @@ class PoliticalMetadata():
 
     def __str__(self):
         if self.party or self.state:
-            party_state = "-".join([x for x in [self.party, self.state] if x]) # because presidential candidates are listed without a state
-            return "{0} ({1})".format(self.name_str(), party_state)
+            party_state = u"-".join([ x for x in [self.party, self.state] if x ]) # because presidential candidates are listed without a state
+            return unicode(u"{0} ({1})".format(unicode(self.name_str()), party_state)).encode('utf-8')
         else:
-            return self.name_str()
+            return unicode(self.name_str()).encode('utf-8')
 
 
 class PoliticianName(PoliticalMetadata, PersonName):
@@ -313,7 +319,7 @@ class RunningMatesNames(PoliticalMetadata):
         self.mate2 = mate2
 
     def name_str(self):
-        return ' & '.join([str(self.mate1), str(self.mate2)])
+        return u' & '.join([unicode(self.mate1), unicode(self.mate2)])
 
     def __repr__(self):
         return self.__str__()

@@ -207,3 +207,30 @@ class TestOrganizationNameCleaverForIndustries(unittest.TestCase):
         self.assertEqual('Non-Profit Institutions', str(OrganizationNameCleaver('NON-PROFIT INSTITUTIONS').parse()))
         self.assertEqual('Pro-Israel', str(OrganizationNameCleaver('PRO-ISRAEL').parse()))
 
+
+class TestUnicode(unittest.TestCase):
+
+    def test_individual(self):
+        self.assertEqual(u'Tobias F\u00fcnke'.encode('utf-8'), \
+                str(IndividualNameCleaver(u'F\u00fcnke, Tobias').parse()))
+
+    def test_politician(self):
+        self.assertEqual(u'Tobias F\u00fcnke'.encode('utf-8'), \
+                str(PoliticianNameCleaver(u'F\u00fcnke, Tobias').parse()))
+
+    def test_politician_plus_metadata(self):
+        self.assertEqual(u'Tobias F\u00fcnke (D-CA)'.encode('utf-8'), \
+                str(PoliticianNameCleaver(u'F\u00fcnke, Tobias').parse().plus_metadata('D', 'CA')))
+
+    def test_politician_running_mates(self):
+        self.assertEqual(u'Tobias F\u00fcnke & Lindsay F\u00fcnke'.encode('utf-8'), \
+                str(PoliticianNameCleaver(u'F\u00fcnke, Tobias & F\u00fcnke, Lindsay').parse()))
+
+    def test_running_mates_with_metadata(self):
+        self.assertEqual(u'Ted Strickland & Le\u00e9 Fischer (D-OH)'.encode('utf-8'), \
+                str(PoliticianNameCleaver(u'STRICKLAND, TED & FISCHER, LE\u00c9').parse().plus_metadata('D', 'OH')))
+
+    def test_organization(self):
+        self.assertEqual(u'\u00C6tna, Inc.'.encode('utf-8'), \
+                str(OrganizationNameCleaver(u'\u00C6tna, Inc.').parse()))
+
