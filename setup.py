@@ -25,5 +25,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Environment :: Web Environment',
+        'Text Processing :: Linguistic',
     ],
 )
