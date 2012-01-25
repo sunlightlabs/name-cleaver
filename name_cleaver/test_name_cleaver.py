@@ -45,6 +45,8 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_capitalize_roman_numeral_suffixes(self):
         self.assertEqual('Ken Cuccinelli II', str(PoliticianNameCleaver('KEN CUCCINELLI II').parse()))
         self.assertEqual('Ken Cuccinelli II', str(PoliticianNameCleaver('CUCCINELLI II, KEN').parse()))
+        self.assertEqual('Ken T Cuccinelli II', str(PoliticianNameCleaver('CUCCINELLI II, KEN T').parse()))
+        self.assertEqual('Ken T Cuccinelli II', str(PoliticianNameCleaver('CUCCINELLI, KEN T II').parse()))
         self.assertEqual('Ken Cuccinelli IV', str(PoliticianNameCleaver('CUCCINELLI IV, KEN').parse()))
         self.assertEqual('Ken Cuccinelli IX', str(PoliticianNameCleaver('CUCCINELLI IX, KEN').parse()))
 
@@ -176,6 +178,8 @@ class TestIndividualNameCleaver(unittest.TestCase):
         self.assertEqual('Ken Cuccinelli II', str(IndividualNameCleaver('CUCCINELLI II, KEN').parse()))
         self.assertEqual('Ken Cuccinelli IV', str(IndividualNameCleaver('CUCCINELLI IV, KEN').parse()))
         self.assertEqual('Ken Cuccinelli IX', str(IndividualNameCleaver('CUCCINELLI IX, KEN').parse()))
+        self.assertEqual('Ken T Cuccinelli II', str(PoliticianNameCleaver('CUCCINELLI II, KEN T').parse()))
+        self.assertEqual('Ken T Cuccinelli II', str(PoliticianNameCleaver('CUCCINELLI, KEN T II').parse()))
 
     def test_capitalize_scottish_last_names(self):
         self.assertEqual('Ronald McDonald', str(IndividualNameCleaver('RONALD MCDONALD').parse()))

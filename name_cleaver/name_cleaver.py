@@ -362,8 +362,8 @@ class IndividualNameCleaver(object):
 
     def separate_affixes(self, name):
         name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[dm][rs]s?[,.]?)(?=(\b|\s))+', name)
-        name, suffix = self.extract_matching_portion(r'\b(?P<suffix>([js]r|I{2,}))\b', name)
-        name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}\b)', name)
+        name, suffix = self.extract_matching_portion(r'\b(?P<suffix>([js]r|[IVX]{2,}))(?=(\b|\s))+', name)
+        name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}(?=(\b|\s))+)', name)
         name, nick = self.extract_matching_portion(r'("[^"]*")', name)
 
         # strip trailing non alphanumeric characters
@@ -383,11 +383,16 @@ class IndividualNameCleaver(object):
         return name, matched_piece
 
     def reverse_last_first(self, name):
+        # make sure we don't put a suffix in the middle, as in "Smith, Tom II"
+        name, suffix = self.extract_matching_portion(r'\b(?P<suffix>([js]r|[IVX]{2,}))(?=(\b|\s))+', name)
         split = re.split(', ?', name)
 
         # make sure that we don't have "Jr" preceded by a comma
         if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
             split.reverse()
+
+        if suffix:
+            split.append(suffix)
 
         return ' '.join(split)
 
