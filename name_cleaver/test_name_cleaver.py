@@ -196,6 +196,8 @@ class TestIndividualNameCleaver(unittest.TestCase):
 
     def test_unfazed_by_weird_cop_cont_parenthetical_phrases(self):
         self.assertEqual('Jacqueline A Schmitz', str(IndividualNameCleaver('SCHMITZ (COP CONT ), JACQUELINE A').parse()))
+        self.assertEqual('Hannah Mellman', str(IndividualNameCleaver('MELLMAN (CONT\'D), HANNAH (CONT\'D)').parse()))
+        self.assertEqual('Tod Preston', str(IndividualNameCleaver('PRESTON (C O P CONT\'D ), TOD').parse()))
 
 
 class TestCapitalization(unittest.TestCase):
