@@ -349,6 +349,9 @@ class IndividualNameCleaver(object):
         self.name = string
 
     def parse(self):
+        # strip any spaces padding parenthetical phrases
+        self.name = re.sub('\(\s*([^)]+)\s*\)', '(\1)', self.name)
+
         name, honorific, suffix, nick = self.separate_affixes(self.name)
 
         if honorific and not honorific.endswith('.'):

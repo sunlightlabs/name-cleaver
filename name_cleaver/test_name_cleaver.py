@@ -194,6 +194,9 @@ class TestIndividualNameCleaver(unittest.TestCase):
     def test_doesnt_overzealously_detect_doctors(self):
         self.assertEqual('Drew Maloney', str(IndividualNameCleaver('Maloney, Drew').parse()))
 
+    def test_unfazed_by_weird_cop_cont_parenthetical_phrases(self):
+        self.assertEqual('Jacqueline A Schmitz', str(IndividualNameCleaver('SCHMITZ (COP CONT ), JACQUELINE A').parse()))
+
 
 class TestCapitalization(unittest.TestCase):
 
