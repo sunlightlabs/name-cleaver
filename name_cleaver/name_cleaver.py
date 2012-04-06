@@ -349,8 +349,7 @@ class IndividualNameCleaver(object):
         self.name = string
 
     def parse(self):
-        # strip any spaces padding parenthetical phrases
-        self.name = re.sub('\(\s*([^)]+)\s*\)', '(\1)', self.name)
+        self.name = self.pre_process(self.name)
 
         name, honorific, suffix, nick = self.separate_affixes(self.name)
 
@@ -362,6 +361,15 @@ class IndividualNameCleaver(object):
         assert isinstance(self.name, PersonName), "Didn't give back a PersonName object for %s!" % self.name
 
         return self.name.case_name_parts()
+
+    def pre_process(self, name):
+        # strip any spaces padding parenthetical phrases
+        name = re.sub('\(\s*([^)]+)\s*\)', '(\1)', name)
+
+        # get rid of trailing '& mrs'
+        name = re.sub(' \& mrs\.?$', '', name, flags=re.IGNORECASE)
+
+        return name
 
     def separate_affixes(self, name):
         name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[dm][rs]s?[,.]?)(?=(\b|\s))+', name)
@@ -402,7 +410,7 @@ class IndividualNameCleaver(object):
     def convert_name_to_obj(self, name, nick, honorific, suffix):
         name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
 
-        return PersonName().new_from_tokens(*[x for x in name.split(' ')], **{'allow_quoted_nicknames':True})
+        return PersonName().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames':True})
 
 
 
@@ -432,7 +440,7 @@ class PoliticianNameCleaver(IndividualNameCleaver):
 
     def convert_regular_name_to_obj(self, name):
         name = self.reverse_last_first(name)
-        return PoliticianName().new_from_tokens(*[x for x in name.split(' ') if x])
+        return PoliticianName().new_from_tokens(*[x for x in re.split('\s+', name) if x])
 
     def convert_running_mates_names_to_obj(self, name):
         return RunningMatesNames(*[ self.convert_name_to_obj(x) for x in name.split(' & ') ])

@@ -91,6 +91,7 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('Sean O\'Leary', str(PoliticianNameCleaver('SEAN O\'LEARY').parse()))
 
 
+
 class TestOrganizationNameCleaver(unittest.TestCase):
 
     def test_capitalize_pac(self):
@@ -198,6 +199,10 @@ class TestIndividualNameCleaver(unittest.TestCase):
         self.assertEqual('Jacqueline A Schmitz', str(IndividualNameCleaver('SCHMITZ (COP CONT ), JACQUELINE A').parse()))
         self.assertEqual('Hannah Mellman', str(IndividualNameCleaver('MELLMAN (CONT\'D), HANNAH (CONT\'D)').parse()))
         self.assertEqual('Tod Preston', str(IndividualNameCleaver('PRESTON (C O P CONT\'D ), TOD').parse()))
+
+    def test_mr_and_mrs(self):
+        self.assertEqual('Kenneth L Lay', str(IndividualNameCleaver('LAY, KENNETH L MR & MRS').parse()))
+
 
 
 class TestCapitalization(unittest.TestCase):
