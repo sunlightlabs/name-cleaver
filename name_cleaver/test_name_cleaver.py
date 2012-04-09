@@ -1,5 +1,5 @@
 from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver, \
-        IndividualNameCleaver
+        IndividualNameCleaver, UnparseableNameException
 
 import unittest
 
@@ -247,4 +247,19 @@ class TestUnicode(unittest.TestCase):
     def test_organization(self):
         self.assertEqual(u'\u00C6tna, Inc.'.encode('utf-8'), \
                 str(OrganizationNameCleaver(u'\u00C6tna, Inc.').parse()))
+
+
+class TestErrors(unittest.TestCase):
+
+    def test_unparseable_politician_name(self):
+        with self.assertRaises(UnparseableNameException) as npe:
+            PoliticianNameCleaver("mr & mrs").parse()
+
+    def test_unparseable_individual_name(self):
+        with self.assertRaises(UnparseableNameException) as npe:
+            IndividualNameCleaver("mr & mrs").parse()
+
+    def test_unparseable_organization_name(self):
+        with self.assertRaises(UnparseableNameException) as npe:
+            OrganizationNameCleaver(None).parse()
 

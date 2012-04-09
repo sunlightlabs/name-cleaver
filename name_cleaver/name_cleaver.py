@@ -1,4 +1,5 @@
 import re
+from exceptions import UnparseableNameException
 
 SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
 
@@ -349,18 +350,21 @@ class IndividualNameCleaver(object):
         self.name = string
 
     def parse(self):
-        self.name = self.pre_process(self.name)
+        try:
+            self.name = self.pre_process(self.name)
 
-        name, honorific, suffix, nick = self.separate_affixes(self.name)
+            name, honorific, suffix, nick = self.separate_affixes(self.name)
 
-        if honorific and not honorific.endswith('.'):
-            honorific += '.'
+            if honorific and not honorific.endswith('.'):
+                honorific += '.'
 
-        name = self.reverse_last_first(name)
-        self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
-        assert isinstance(self.name, PersonName), "Didn't give back a PersonName object for %s!" % self.name
+            name = self.reverse_last_first(name)
+            self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
+            assert isinstance(self.name, PersonName), "Didn't give back a PersonName object for %s!" % self.name
 
-        return self.name.case_name_parts()
+            return self.name.case_name_parts()
+        except:
+            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
 
     def pre_process(self, name):
         # strip any spaces padding parenthetical phrases
@@ -422,11 +426,14 @@ class PoliticianNameCleaver(IndividualNameCleaver):
         super(PoliticianNameCleaver, self).__init__(string)
 
     def parse(self):
-        self.strip_party()
-        self.name = self.convert_name_to_obj(self.name) # important for "last, first", and also running mates
-        assert isinstance(self.name, PoliticianName) or isinstance(self.name, RunningMatesNames), "Didn't give back a PoliticianName or RunningMatesNames object for %s!" % self.name
+        try:
+            self.strip_party()
+            self.name = self.convert_name_to_obj(self.name) # important for "last, first", and also running mates
+            assert isinstance(self.name, PoliticianName) or isinstance(self.name, RunningMatesNames), "Didn't give back a PoliticianName or RunningMatesNames object for %s!" % self.name
 
-        return self.name.case_name_parts()
+            return self.name.case_name_parts()
+        except:
+            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
 
     def strip_party(self):
         if '(' in self.name:
@@ -452,12 +459,15 @@ class OrganizationNameCleaver(object):
         self.name = string
 
     def parse(self, long_form=False):
-        self.name = self.name.strip()
+        try:
+            self.name = self.name.strip()
 
-        self.name = OrganizationName().new(self.name)
-        assert isinstance(self.name, OrganizationName)
+            self.name = OrganizationName().new(self.name)
+            assert isinstance(self.name, OrganizationName)
 
-        return self.name.case_name_parts()
+            return self.name.case_name_parts()
+        except:
+            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
 
     def convert_name_to_obj(self):
         self.name = OrganizationName().new(self.name)

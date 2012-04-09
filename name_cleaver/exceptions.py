@@ -1,0 +1,3 @@
+
+class UnparseableNameException(Exception):
+    pass
