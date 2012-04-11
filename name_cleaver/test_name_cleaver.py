@@ -90,6 +90,10 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_capitalize_irish_names(self):
         self.assertEqual('Sean O\'Leary', str(PoliticianNameCleaver('SEAN O\'LEARY').parse()))
 
+    def test_primary_name_parts(self):
+        self.assertEqual(['Robert', 'Geoff', 'Smith'], PoliticianNameCleaver('Smith, Robert Geoff').parse().primary_name_parts(include_middle=True))
+        self.assertEqual(['Robert', 'Smith'], PoliticianNameCleaver('Smith, Robert Geoff').parse().primary_name_parts())
+
 
 
 class TestOrganizationNameCleaver(unittest.TestCase):
@@ -203,6 +207,9 @@ class TestIndividualNameCleaver(unittest.TestCase):
     def test_mr_and_mrs(self):
         self.assertEqual('Kenneth L Lay', str(IndividualNameCleaver('LAY, KENNETH L MR & MRS').parse()))
 
+    def test_primary_name_parts(self):
+        self.assertEqual(['Robert', 'Geoff', 'Smith'], IndividualNameCleaver('Smith, Robert Geoff').parse().primary_name_parts(include_middle=True))
+        self.assertEqual(['Robert', 'Smith'], IndividualNameCleaver('Smith, Robert Geoff').parse().primary_name_parts())
 
 
 class TestCapitalization(unittest.TestCase):

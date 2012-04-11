@@ -286,8 +286,11 @@ class PersonName(Name):
         else:
             return name_part
 
-    def primary_name_parts(self):
-        return [ self.first, self.last ]
+    def primary_name_parts(self, include_middle=False):
+        if include_middle:
+            return [ self.first, self.middle, self.last ]
+        else:
+            return [ self.first, self.last ]
 
 
 
