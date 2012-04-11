@@ -1,5 +1,5 @@
 import re
-from exceptions import UnparseableNameException
+from exception import UnparseableNameException
 
 SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
 
