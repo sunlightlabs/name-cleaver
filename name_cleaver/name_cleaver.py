@@ -61,6 +61,18 @@ class OrganizationName(Name):
         'amer': 'American',
         'ed': 'Educational',
     }
+    multi_word_abbreviations = {
+        # TODO: stuck here.
+        'u of col': 'University of Colorado', # can't depend on 'col' not meaning 'college' so have to do this as multi-word
+        'u of': 'University of',
+        'state u': 'State University',
+    }
+    university_specific_abbrevs = {
+        'cal': 'California',
+        'minn': 'Minnesota',
+        'comm': 'Community',
+        'fl': 'Florida',
+    }
     filler_words = 'The And Of In For Group'.split()
 
     name = None
@@ -110,7 +122,15 @@ class OrganizationName(Name):
         return re.sub(r'[,.*:;+]*', '', name)
 
     def expand(self):
-        return ' '.join(self.abbreviations.get(w.lower(), w) for w in self.without_punctuation().split())
+        expanded = ' '.join(self.abbreviations.get(w.lower(), w) for w in self.without_punctuation().split())
+
+        for x in self.multi_word_abbreviations.items():
+            expanded = re.sub(r'\b{}\b'.format(x[0]), x[1], expanded, flags=re.IGNORECASE)
+
+        if 'university' in expanded.lower() or 'college' in expanded.lower():
+            expanded = ' '.join(self.university_specific_abbrevs.get(w.lower(), w) for w in expanded.split())
+
+        return expanded
 
     def kernel(self):
         stop_words = [ y.lower() for y in self.abbreviations.values() + self.filler_words ]

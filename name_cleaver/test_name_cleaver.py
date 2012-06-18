@@ -125,6 +125,19 @@ class TestOrganizationNameCleaver(unittest.TestCase):
     def test_expand_with_two_tokens_to_expand(self):
         self.assertEqual('Merck & Company Incorporated', OrganizationNameCleaver('Merck & Co., Inc.').parse().expand())
 
+    def test_expand_u_of_to_university(self):
+        self.assertEqual('University of Arizona', OrganizationNameCleaver('U of Arizona').parse().expand())
+
+    def test_expand_u_of_cal_to_university(self):
+        self.assertEqual('University of California Davis', OrganizationNameCleaver('U of Cal Davis').parse().expand())
+
+    def test_expand_state_u(self):
+        self.assertEqual('California State University', OrganizationNameCleaver('California State U').parse().expand())
+        self.assertEqual('California State Umpires', OrganizationNameCleaver('California State Umpires').parse().expand())
+
+    def test_expand_u_of_col(self):
+        self.assertEqual('University of Colorado Boulder', OrganizationNameCleaver('U of Col Boulder').parse().expand())
+
     def test_dont_strip_after_hyphens_too_soon_in_a_name(self):
         self.assertEqual('US-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel())
         self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel())
