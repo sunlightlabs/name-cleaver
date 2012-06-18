@@ -114,6 +114,7 @@ class OrganizationName(Name):
         return ' '.join(self.abbreviations.get(w.lower(), w) for w in self.without_punctuation().split())
 
     def kernel(self):
+        """ The 'kernel' is an attempt to get at just the most pithy words in the name """
         stop_words = [ y.lower() for y in self.abbreviations.values() + self.filler_words ]
         kernel = ' '.join([ x for x in self.expand().split() if x.lower() not in stop_words ])
 
