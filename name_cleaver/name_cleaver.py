@@ -32,6 +32,7 @@ class Name(object):
 
 class OrganizationName(Name):
     abbreviations = {
+        'acad': 'Academy',
         'assns': 'Associations',
         'assn': 'Association',
         'cmte': 'Committee',
