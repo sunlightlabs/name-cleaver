@@ -346,15 +346,27 @@ class RunningMatesNames(PoliticalMetadata):
 
         return self
 
+class BaseNameCleaver(object):
+
+    def cannot_parse(self, safe):
+        if safe:
+            return self.orig_str
+        else:
+            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
 
 
-class IndividualNameCleaver(object):
+
+class IndividualNameCleaver(BaseNameCleaver):
     object_class = PersonName
 
     def __init__(self, string):
         self.name = string
+        self.orig_str = string
 
-    def parse(self):
+    def parse(self, safe=False):
+        if not self.orig_str:
+            return ''
+
         try:
             self.name = self.pre_process(self.name)
 
@@ -365,11 +377,14 @@ class IndividualNameCleaver(object):
 
             name = self.reverse_last_first(name)
             self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
-            assert isinstance(self.name, PersonName), "Didn't give back a PersonName object for %s!" % self.name
-
-            return self.name.case_name_parts()
         except:
-            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
+            return self.cannot_parse(safe)
+        finally:
+            if (isinstance (self.name, PersonName) and (self.name.first and self.name.last)):
+                return self.name.case_name_parts()
+            else:
+                return self.cannot_parse(safe)
+
 
     def pre_process(self, name):
         # strip any spaces padding parenthetical phrases
@@ -430,15 +445,20 @@ class PoliticianNameCleaver(IndividualNameCleaver):
     def __init__(self, string):
         super(PoliticianNameCleaver, self).__init__(string)
 
-    def parse(self):
+    def parse(self, safe=False):
+        if not self.orig_str:
+            return ''
+
         try:
             self.strip_party()
             self.name = self.convert_name_to_obj(self.name) # important for "last, first", and also running mates
-            assert isinstance(self.name, PoliticianName) or isinstance(self.name, RunningMatesNames), "Didn't give back a PoliticianName or RunningMatesNames object for %s!" % self.name
-
-            return self.name.case_name_parts()
         except:
-            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
+            return self.cannot_parse(safe)
+        finally:
+            if ((isinstance(self.name, PoliticianName) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
+                return self.name.case_name_parts()
+            else:
+                return self.cannot_parse(safe)
 
     def strip_party(self):
         if '(' in self.name:
@@ -462,17 +482,24 @@ class PoliticianNameCleaver(IndividualNameCleaver):
 class OrganizationNameCleaver(object):
     def __init__(self, string):
         self.name = string
+        self.orig_str = string
 
-    def parse(self, long_form=False):
+    def parse(self, safe=False):
+        if not self.orig_str:
+            return ''
+
         try:
             self.name = self.name.strip()
 
             self.name = OrganizationName().new(self.name)
-            assert isinstance(self.name, OrganizationName)
-
-            return self.name.case_name_parts()
         except:
-            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
+            return self.cannot_parse(safe)
+        finally:
+            if isinstance(self.name, OrganizationName):
+                return self.name.case_name_parts()
+            else:
+                return self.cannot_parse(safe)
+
 
     def convert_name_to_obj(self):
         self.name = OrganizationName().new(self.name)

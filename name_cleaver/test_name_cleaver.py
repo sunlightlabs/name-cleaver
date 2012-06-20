@@ -259,14 +259,41 @@ class TestUnicode(unittest.TestCase):
 class TestErrors(unittest.TestCase):
 
     def test_unparseable_politician_name(self):
-        with self.assertRaises(UnparseableNameException) as npe:
+        with self.assertRaises(UnparseableNameException):
             PoliticianNameCleaver("mr & mrs").parse()
 
     def test_unparseable_individual_name(self):
-        with self.assertRaises(UnparseableNameException) as npe:
+        with self.assertRaises(UnparseableNameException):
             IndividualNameCleaver("mr & mrs").parse()
 
-    def test_unparseable_organization_name(self):
-        with self.assertRaises(UnparseableNameException) as npe:
-            OrganizationNameCleaver(None).parse()
+    # this ought to have a test, but I'm not sure how to break this one.
+    #def test_unparseable_organization_name(self):
+    #    with self.assertRaises(UnparseableNameException):
+    #        OrganizationNameCleaver("####!!!").parse()
 
+
+    def test_parse_safe__individual(self):
+        with self.assertRaises(UnparseableNameException):
+            IndividualNameCleaver("BARDEN PHD J D, R CHRISTOPHER").parse()
+
+        self.assertEqual('BARDEN PHD J D, R CHRISTOPHER', str(IndividualNameCleaver('BARDEN PHD J D, R CHRISTOPHER').parse(safe=True)))
+
+        with self.assertRaises(UnparseableNameException):
+            IndividualNameCleaver("gobbledy blah bloop!!!.p,.lcrg%%% #$<").parse()
+
+        self.assertEqual('gobbledy blah bloop!!!.p,.lcrg%%% #$<', str(IndividualNameCleaver('gobbledy blah bloop!!!.p,.lcrg%%% #$<').parse(safe=True)))
+
+
+    def test_parse_safe__politician(self):
+        with self.assertRaises(UnparseableNameException):
+            PoliticianNameCleaver("BARDEN PHD J D, R CHRISTOPHER").parse()
+
+        self.assertEqual('BARDEN PHD J D, R CHRISTOPHER', str(PoliticianNameCleaver('BARDEN PHD J D, R CHRISTOPHER').parse(safe=True)))
+
+        with self.assertRaises(UnparseableNameException):
+            PoliticianNameCleaver("gobbledy gook bah bah bloop!!!.p,.lcrg%%% #$<").parse()
+
+        self.assertEqual('gobbledy gook bah bah bloop!!!.p,.lcrg%%% #$<', str(PoliticianNameCleaver('gobbledy gook bah bah bloop!!!.p,.lcrg%%% #$<').parse(safe=True)))
+
+    def test_parse_safe__organization(self):
+        self.assertEqual('', OrganizationNameCleaver(None).parse(safe=True))
