@@ -6,7 +6,7 @@ Installation
 
 Installation is easy:
 
-    pip install -e git+http://github.com/sunlightlabs/name-cleaver.git#egg=name-cleaver
+    pip install name-cleaver
 
 Usage
 =====
@@ -24,4 +24,9 @@ Example:
 
     print str(smith) => "Robert J Smith"
 
+Usage as above can usually be expected to return a Name object, but is not guaranteed to not throw an exception, if NameCleaver is given unexpected input or otherwise can't figure out what to do with a name. In the case that you don't want to deal with handling exceptions, NameCleaver has a safe mode:
+
+    smith = PoliticianNameCleaver('Smith, Robert J').parse(safe=True)
+
+In safe mode, if NameCleaver encounters an exception or doesn't come up with a fully-formed name, it will return the original input string.
 
