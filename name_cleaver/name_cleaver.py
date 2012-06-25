@@ -1,7 +1,7 @@
 import re
 from exception import UnparseableNameException
 
-SUFFIX_RE = '([js]r\.?|[IVX]{2,})'
+SUFFIX_RE = '([js]r\.?|[IVX]{2,}|m\.?d\.?)'
 
 
 class Name(object):
@@ -284,7 +284,10 @@ class PersonName(Name):
 
     def capitalize_and_punctuate_initials(self, name_part):
         if self.is_only_initials(name_part):
-            return ''.join([ '{0}.'.format(x.upper()) for x in name_part])
+            if '.' not in name_part:
+                return ''.join([ '{0}.'.format(x.upper()) for x in name_part])
+            else:
+                return name_part
         else:
             return name_part
 
@@ -348,10 +351,13 @@ class RunningMatesNames(PoliticalMetadata):
 
 class BaseNameCleaver(object):
 
-    def cannot_parse(self, safe):
+    def cannot_parse(self, safe, e=None):
         if safe:
             return self.orig_str
         else:
+            # uncomment for debugging
+            # if e:
+            #    print e
             raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
 
 
@@ -377,8 +383,8 @@ class IndividualNameCleaver(BaseNameCleaver):
 
             name = self.reverse_last_first(name)
             self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
-        except:
-            return self.cannot_parse(safe)
+        except Exception, e:
+            return self.cannot_parse(safe, e)
         finally:
             if (isinstance (self.name, PersonName) and (self.name.first and self.name.last)):
                 return self.name.case_name_parts()
@@ -397,7 +403,9 @@ class IndividualNameCleaver(BaseNameCleaver):
 
     def separate_affixes(self, name):
         name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[dm][rs]s?[,.]?)(?=(\b|\s))+', name)
-        name, suffix = self.extract_matching_portion(r'\b(?P<suffix>([js]r|[IVX]{2,}))(?=(\b|\s))+', name)
+        name, suffix = self.extract_suffix(name)
+        if suffix:
+            suffix = suffix.replace('.', '')
         name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}(?=(\b|\s))+)', name)
         name, nick = self.extract_matching_portion(r'("[^"]*")', name)
 
@@ -417,12 +425,20 @@ class IndividualNameCleaver(BaseNameCleaver):
 
         return name, matched_piece
 
+    def extract_suffix(self, name):
+        return self.extract_matching_portion(r'\b(?P<suffix>%s(?=(\b|\s))+)' % SUFFIX_RE, name)
+
     def reverse_last_first(self, name):
+        """ Takes a name that is in [last, first] format and returns it in a hopefully [first last] order.
+            Also extracts the suffix and puts it back on the end, in case it's embedded somewhere in the middle.
+        """
         # make sure we don't put a suffix in the middle, as in "Smith, Tom II"
-        name, suffix = self.extract_matching_portion(r'\b(?P<suffix>([js]r|[IVX]{2,}))(?=(\b|\s))+', name)
+        name, suffix = self.extract_suffix(name)
         split = re.split(', ?', name)
 
-        # make sure that we don't have "Jr" preceded by a comma
+        # make sure that the comma is not just preceding a suffix, such as "Jr",
+        # by checking that we have at least 2 name parts and the last doesn't match
+        # our suffix regex
         if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
             split.reverse()
 
@@ -452,8 +468,8 @@ class PoliticianNameCleaver(IndividualNameCleaver):
         try:
             self.strip_party()
             self.name = self.convert_name_to_obj(self.name) # important for "last, first", and also running mates
-        except:
-            return self.cannot_parse(safe)
+        except Exception, e:
+            return self.cannot_parse(safe, e)
         finally:
             if ((isinstance(self.name, PoliticianName) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
                 return self.name.case_name_parts()
@@ -492,8 +508,8 @@ class OrganizationNameCleaver(object):
             self.name = self.name.strip()
 
             self.name = OrganizationName().new(self.name)
-        except:
-            return self.cannot_parse(safe)
+        except Exception, e:
+            return self.cannot_parse(safe, e)
         finally:
             if isinstance(self.name, OrganizationName):
                 return self.name.case_name_parts()

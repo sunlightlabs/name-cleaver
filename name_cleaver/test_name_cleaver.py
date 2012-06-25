@@ -211,6 +211,12 @@ class TestIndividualNameCleaver(unittest.TestCase):
         self.assertEqual(['Robert', 'Geoff', 'Smith'], IndividualNameCleaver('Smith, Robert Geoff').parse().primary_name_parts(include_middle=True))
         self.assertEqual(['Robert', 'Smith'], IndividualNameCleaver('Smith, Robert Geoff').parse().primary_name_parts())
 
+    def test_initialed_first_name(self):
+        self.assertEqual('C. Richard Bonebrake', str(IndividualNameCleaver('C. RICHARD BONEBRAKE').parse()))
+
+    def test_md(self):
+        self.assertEqual('C. Richard Bonebrake MD', str(IndividualNameCleaver('C. RICHARD BONEBRAKE, M.D.').parse()))
+
 
 class TestCapitalization(unittest.TestCase):
 
