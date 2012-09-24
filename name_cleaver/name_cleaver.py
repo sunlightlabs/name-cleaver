@@ -397,7 +397,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         name = re.sub('\(\s*([^)]+)\s*\)', '(\1)', name)
 
         # get rid of trailing '& mrs'
-        name = re.sub(' \& mrs\.?$', '', name, flags=re.IGNORECASE)
+        name = re.sub(' (?i)\& mrs\.?$', '', name)
 
         return name
 
