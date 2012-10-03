@@ -17,7 +17,6 @@ class BaseNameCleaver(object):
             raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
 
 
-
 class IndividualNameCleaver(BaseNameCleaver):
     object_class = PersonName
 
@@ -42,11 +41,10 @@ class IndividualNameCleaver(BaseNameCleaver):
         except Exception, e:
             return self.cannot_parse(safe, e)
         finally:
-            if (isinstance (self.name, PersonName) and (self.name.first and self.name.last)):
+            if (isinstance(self.name, self.object_class) and (self.name.first and self.name.last)):
                 return self.name.case_name_parts()
             else:
                 return self.cannot_parse(safe)
-
 
     def pre_process(self, name):
         # strip any spaces padding parenthetical phrases
@@ -106,8 +104,58 @@ class IndividualNameCleaver(BaseNameCleaver):
     def convert_name_to_obj(self, name, nick, honorific, suffix):
         name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
 
-        return PersonName().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames':True})
+        return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames': True})
 
+    @classmethod
+    def name_processing_failed(cls, subject_name):
+        return subject_name and (isinstance(subject_name, RunningMatesNames) or not subject_name.last)
+
+    @classmethod
+    def compare(cls, name1, name2):
+        score = 0
+
+        # score last name
+        if name1.last == name2.last:
+            score += 1
+        else:
+            return 0
+
+        # score first name
+        if name1.first == name2.first:
+            score += 1
+        else:
+            for name_set in NICKNAMES:
+                if set(name_set).issuperset([name1.first, name2.first]):
+                    score += 0.6
+                    break
+
+            if name1.first == name2.middle and name2.first == name1.middle:
+                score += 0.8
+            else:
+                try:
+                    # this was failing in cases where an odd organization name was in the mix
+                    if name1.first[0] == name2.first[0]:
+                        score += 0.1
+                except:
+                    return 0
+
+        # score middle name
+        if name1.middle and name2.middle:
+            # we only want to count the middle name for much if we've already
+            # got a match on first and last, to avoid getting high scores for
+            # names which only match on last and middle
+            if score > 1.1:
+                if name1.middle == name2.middle:
+                    score += 1
+                elif name1.middle[0] == name2.middle[0]:
+                    score += .5
+                else:
+                    score -= 1.5
+
+            else:
+                score += .2
+
+        return score
 
 
 class PoliticianNameCleaver(IndividualNameCleaver):
@@ -123,11 +171,11 @@ class PoliticianNameCleaver(IndividualNameCleaver):
 
         try:
             self.strip_party()
-            self.name = self.convert_name_to_obj(self.name) # important for "last, first", and also running mates
+            self.name = self.convert_name_to_obj(self.name)  # important for "last, first", and also running mates
         except Exception, e:
             return self.cannot_parse(safe, e)
         finally:
-            if ((isinstance(self.name, PoliticianName) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
+            if ((isinstance(self.name, self.object_class) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
                 return self.name.case_name_parts()
             else:
                 return self.cannot_parse(safe)
@@ -144,14 +192,15 @@ class PoliticianNameCleaver(IndividualNameCleaver):
 
     def convert_regular_name_to_obj(self, name):
         name = self.reverse_last_first(name)
-        return PoliticianName().new_from_tokens(*[x for x in re.split('\s+', name) if x])
+        return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name) if x])
 
     def convert_running_mates_names_to_obj(self, name):
-        return RunningMatesNames(*[ self.convert_name_to_obj(x) for x in name.split(' & ') ])
-
+        return RunningMatesNames(*[self.convert_name_to_obj(x) for x in name.split(' & ')])
 
 
 class OrganizationNameCleaver(object):
+    object_class = OrganizationName
+
     def __init__(self, string):
         self.name = string
         self.orig_str = string
@@ -163,17 +212,37 @@ class OrganizationNameCleaver(object):
         try:
             self.name = self.name.strip()
 
-            self.name = OrganizationName().new(self.name)
+            self.name = self.object_class().new(self.name)
         except Exception, e:
             return self.cannot_parse(safe, e)
         finally:
-            if isinstance(self.name, OrganizationName):
+            if isinstance(self.name, self.object_class):
                 return self.name.case_name_parts()
             else:
                 return self.cannot_parse(safe)
 
-
     def convert_name_to_obj(self):
         self.name = OrganizationName().new(self.name)
 
+    @classmethod
+    def name_processing_failed(cls, subject_name):
+        return not isinstance(subject_name, OrganizationName)
+
+    @classmethod
+    def compare(cls, match, subject):
+        """
+            Accepts two OrganizationName objects and returns an arbitrary, 
+            numerical score based upon how well the names match.
+        """
+        if match.expand().lower() == subject.expand().lower():
+            return 4
+        elif match.kernel().lower() == subject.kernel().lower():
+            return 3
+        # law and lobbying firms in CRP data typically list only the first two partners
+        # before 'et al'
+        elif ',' in subject.expand(): # we may have a list of partners
+            if subject.crp_style_firm_name() == str(match).lower():
+                return 3
+        else:
+            return 2
 
