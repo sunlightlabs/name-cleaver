@@ -14,7 +14,7 @@ setup(
     author_email='arowland@sunlightfoundation.com',
     url='http://github.com/sunlightlabs/name-cleaver/',
     package_dir={'': 'name_cleaver'},
-    py_modules=['name_cleaver', 'exception'],
+    py_modules=['name_cleaver', 'names', 'nicknames', 'exception'],
     license='BSD License',
     platforms=["any"],
     classifiers=[
