@@ -1,7 +1,10 @@
 from name_cleaver import PoliticianNameCleaver, OrganizationNameCleaver, \
         IndividualNameCleaver, UnparseableNameException
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 
 class TestPoliticianNameCleaver(unittest.TestCase):
