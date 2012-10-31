@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 f = open(os.path.join(os.path.dirname(__file__), 'README'))
 readme = f.read()
@@ -7,14 +7,14 @@ f.close()
 
 setup(
     name='name-cleaver',
-    version='0.4',
+    version='0.4.1',
     description='Name parser and formatter (for politicians, individuals, and organizations)',
     long_description=readme,
     author='Alison Rowland',
     author_email='arowland@sunlightfoundation.com',
     url='http://github.com/sunlightlabs/name-cleaver/',
     package_dir={'': 'name_cleaver'},
-    py_modules=['name_cleaver', 'names', 'nicknames', 'exception'],
+    packages=find_packages('name_cleaver'),
     license='BSD License',
     platforms=["any"],
     classifiers=[
