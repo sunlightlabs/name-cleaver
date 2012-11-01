@@ -7,14 +7,13 @@ f.close()
 
 setup(
     name='name-cleaver',
-    version='0.4.5',
+    version='0.4.6',
     description='Name parser and formatter (for politicians, individuals, and organizations)',
     long_description=readme,
     author='Alison Rowland',
     author_email='arowland@sunlightfoundation.com',
     url='http://github.com/sunlightlabs/name-cleaver/',
-    package_dir = {'': 'name_cleaver'},
-    packages=find_packages('name_cleaver'),
+    packages=find_packages(),
     license='BSD License',
     platforms=["any"],
     classifiers=[
