@@ -122,7 +122,7 @@ class IndividualNameCleaver(BaseNameCleaver):
             return 0
 
         # score first name
-        if name1.first == name2.first:
+        if name1.first and name2.first and name1.first == name2.first:
             score += 1
         else:
             for name_set in NICKNAMES:
