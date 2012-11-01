@@ -157,6 +157,9 @@ class TestOrganizationNameCleaver(unittest.TestCase):
 
 class TestIndividualNameCleaver(unittest.TestCase):
 
+    def test_allow_names_to_have_only_last_name(self):
+        self.assertEqual('Lee', str(IndividualNameCleaver('LEE').parse()))
+
     def test_all_kinds_of_crazy(self):
         self.assertEqual('Stanford Z Rothschild', str(IndividualNameCleaver('ROTHSCHILD 212, STANFORD Z MR').parse()))
 

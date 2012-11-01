@@ -42,7 +42,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         except Exception, e:
             return self.cannot_parse(safe, e)
         finally:
-            if (isinstance(self.name, self.object_class) and (self.name.first and self.name.last)):
+            if (isinstance(self.name, self.object_class) and self.name.last):
                 return self.name.case_name_parts()
             else:
                 return self.cannot_parse(safe)
