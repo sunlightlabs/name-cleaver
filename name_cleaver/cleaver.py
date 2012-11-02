@@ -128,7 +128,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         # score first name
         if name1.first and name2.first and name1.first == name2.first:
             score += 1
-        else:
+        elif name1.first and name2.first:
             for name_set in NICKNAMES:
                 if set(name_set).issuperset([name1.first, name2.first]):
                     score += 0.6
