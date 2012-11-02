@@ -29,23 +29,27 @@ class IndividualNameCleaver(BaseNameCleaver):
         if not self.orig_str:
             return ''
 
-        try:
-            self.name = self.pre_process(self.name)
+        if not ' ' in self.name:
+            self.name = PersonName().new_from_tokens(self.name)
+            return self.name.case_name_parts()
+        else:
+            try:
+                self.name = self.pre_process(self.name)
 
-            name, honorific, suffix, nick = self.separate_affixes(self.name)
+                name, honorific, suffix, nick = self.separate_affixes(self.name)
 
-            if honorific and not honorific.endswith('.'):
-                honorific += '.'
+                if honorific and not honorific.endswith('.'):
+                    honorific += '.'
 
-            name = self.reverse_last_first(name)
-            self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
-        except Exception, e:
-            return self.cannot_parse(safe, e)
-        finally:
-            if (isinstance(self.name, self.object_class) and self.name.last):
-                return self.name.case_name_parts()
-            else:
-                return self.cannot_parse(safe)
+                name = self.reverse_last_first(name)
+                self.name = self.convert_name_to_obj(name, nick, honorific, suffix)
+            except Exception, e:
+                return self.cannot_parse(safe, e)
+            finally:
+                if (isinstance(self.name, self.object_class) and self.name.first and self.name.last):
+                    return self.name.case_name_parts()
+                else:
+                    return self.cannot_parse(safe)
 
     def pre_process(self, name):
         # strip any spaces padding parenthetical phrases
@@ -170,16 +174,20 @@ class PoliticianNameCleaver(IndividualNameCleaver):
         if not self.orig_str:
             return ''
 
-        try:
-            self.strip_party()
-            self.name = self.convert_name_to_obj(self.name)  # important for "last, first", and also running mates
-        except Exception, e:
-            return self.cannot_parse(safe, e)
-        finally:
-            if ((isinstance(self.name, self.object_class) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
-                return self.name.case_name_parts()
-            else:
-                return self.cannot_parse(safe)
+        if not ' ' in self.name:
+            self.name = PersonName().new_from_tokens(self.name)
+            return self.name.case_name_parts()
+        else:
+            try:
+                self.strip_party()
+                self.name = self.convert_name_to_obj(self.name)  # important for "last, first", and also running mates
+            except Exception, e:
+                return self.cannot_parse(safe, e)
+            finally:
+                if ((isinstance(self.name, self.object_class) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
+                    return self.name.case_name_parts()
+                else:
+                    return self.cannot_parse(safe)
 
     def strip_party(self):
         if '(' in self.name:
