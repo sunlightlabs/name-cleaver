@@ -30,7 +30,7 @@ class IndividualNameCleaver(BaseNameCleaver):
             return ''
 
         if not ' ' in self.name:
-            self.name = PersonName().new_from_tokens(self.name)
+            self.name = self.object_class().new_from_tokens(self.name)
             return self.name.case_name_parts()
         else:
             try:
@@ -175,7 +175,7 @@ class PoliticianNameCleaver(IndividualNameCleaver):
             return ''
 
         if not ' ' in self.name:
-            self.name = PersonName().new_from_tokens(self.name)
+            self.name = self.object_class().new_from_tokens(self.name)
             return self.name.case_name_parts()
         else:
             try:
@@ -231,11 +231,11 @@ class OrganizationNameCleaver(object):
                 return self.cannot_parse(safe)
 
     def convert_name_to_obj(self):
-        self.name = OrganizationName().new(self.name)
+        self.name = self.object_class().new(self.name)
 
     @classmethod
     def name_processing_failed(cls, subject_name):
-        return not isinstance(subject_name, OrganizationName)
+        return not isinstance(subject_name, self.object_class)
 
     @classmethod
     def compare(cls, match, subject):
