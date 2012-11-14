@@ -194,7 +194,7 @@ class PoliticianNameCleaver(IndividualNameCleaver):
             self.name = re.sub(r'\s*\([^)]+\)\s*$', '', self.name)
 
     def convert_name_to_obj(self, name):
-        if '&' in name:
+        if '&' in name or '/' in name:
             return self.convert_running_mates_names_to_obj(name)
         else:
             return self.convert_regular_name_to_obj(name)
@@ -204,7 +204,7 @@ class PoliticianNameCleaver(IndividualNameCleaver):
         return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name) if x])
 
     def convert_running_mates_names_to_obj(self, name):
-        return RunningMatesNames(*[self.convert_name_to_obj(x) for x in name.split(' & ')])
+        return RunningMatesNames(*[self.convert_name_to_obj(x) for x in re.split(' [&/] ', name)])
 
 
 class OrganizationNameCleaver(object):

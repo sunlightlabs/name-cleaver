@@ -40,6 +40,9 @@ class TestPoliticianNameCleaver(unittest.TestCase):
     def test_standardize_running_mate_names(self):
         self.assertEqual('John Kasich & Mary Taylor', str(PoliticianNameCleaver('Kasich, John & Taylor, Mary').parse()))
 
+    def test_standardize_running_mate_names_with_slash(self):
+        self.assertEqual('Mitt Romney & Paul D. Ryan', str(PoliticianNameCleaver('ROMNEY, MITT / RYAN, PAUL D.').parse()))
+
     def test_we_dont_need_no_steeenking_nicknames(self):
         self.assertEqual('Robert M McDonnell', str(PoliticianNameCleaver('McDonnell, Robert M (Bob)').parse()))
         self.assertEqual('John J Duncan Jr', str(PoliticianNameCleaver('John J (Jimmy) Duncan Jr (R)').parse()))
@@ -222,6 +225,7 @@ class TestIndividualNameCleaver(unittest.TestCase):
 
     def test_md(self):
         self.assertEqual('C. Richard Bonebrake MD', str(IndividualNameCleaver('C. RICHARD BONEBRAKE, M.D.').parse()))
+        self.assertEqual('John W. Noble Jr. MD', str(IndividualNameCleaver('NOBLE JR., JOHN W. MD').parse()))
 
 
 class TestCapitalization(unittest.TestCase):
