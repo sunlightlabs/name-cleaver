@@ -100,6 +100,9 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual(['Robert', 'Geoff', 'Smith'], PoliticianNameCleaver('Smith, Robert Geoff').parse().primary_name_parts(include_middle=True))
         self.assertEqual(['Robert', 'Smith'], PoliticianNameCleaver('Smith, Robert Geoff').parse().primary_name_parts())
 
+    def test_van_is_valid_first_name(self):
+        self.assertEqual(['Van', 'Morrison'], PoliticianNameCleaver('Van Morrison').parse().primary_name_parts())
+
 
 
 class TestOrganizationNameCleaver(unittest.TestCase):

@@ -183,7 +183,8 @@ class PersonName(Name):
         else:
             args = [ x.strip() for x in args if not re.match(r'^[("]', x) ]
 
-        self.detect_and_fix_two_part_name(args)
+        if len(args) > 2:
+            self.detect_and_fix_two_part_surname(args)
 
         # set defaults
         self.first = ''
@@ -224,7 +225,7 @@ class PersonName(Name):
     def is_a_nickname(self, name_part):
         return re.match(r'^["(].*[")]$', name_part)
 
-    def detect_and_fix_two_part_name(self, args):
+    def detect_and_fix_two_part_surname(self, args):
         """
         This detects common family name prefixes and joins them to the last name,
         so names like "De Kuyper" don't end up with "De" as a middle name.
