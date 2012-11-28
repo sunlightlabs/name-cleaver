@@ -1,9 +1,8 @@
 import re
 from exception import UnparseableNameException
-from names     import SUFFIX_RE, PersonName, PoliticianName, RunningMatesNames, \
+from names import SUFFIX_RE, PersonName, PoliticianName, RunningMatesNames, \
     OrganizationName
 from nicknames import NICKNAMES
-
 
 
 class BaseNameCleaver(object):
@@ -65,6 +64,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         name, suffix = self.extract_suffix(name)
         if suffix:
             suffix = suffix.replace('.', '')
+
         name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}(?=(\b|\s))+)', name)
         name, nick = self.extract_matching_portion(r'("[^"]*")', name)
 
@@ -240,7 +240,7 @@ class OrganizationNameCleaver(object):
     @classmethod
     def compare(cls, match, subject):
         """
-            Accepts two OrganizationName objects and returns an arbitrary, 
+            Accepts two OrganizationName objects and returns an arbitrary,
             numerical score based upon how well the names match.
         """
         if match.expand().lower() == subject.expand().lower():
@@ -249,9 +249,8 @@ class OrganizationNameCleaver(object):
             return 3
         # law and lobbying firms in CRP data typically list only the first two partners
         # before 'et al'
-        elif ',' in subject.expand(): # we may have a list of partners
+        elif ',' in subject.expand():  # we may have a list of partners
             if subject.crp_style_firm_name() == str(match).lower():
                 return 3
         else:
             return 2
-
