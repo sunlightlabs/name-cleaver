@@ -235,7 +235,7 @@ class OrganizationNameCleaver(object):
 
     @classmethod
     def name_processing_failed(cls, subject_name):
-        return not isinstance(subject_name, self.object_class)
+        return not isinstance(subject_name, cls.object_class)
 
     @classmethod
     def compare(cls, match, subject):
