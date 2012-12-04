@@ -1,6 +1,7 @@
 import re
 
-SUFFIX_RE = '([js]r\.?|[IVX]{2,}|m\.?d\.?)'
+DEGREE_RE = '(j\.?d|m\.?d|ph\.?d)'
+SUFFIX_RE = '((([js]r|%s)\.?)|[IVX]{2,})' % DEGREE_RE
 
 class Name(object):
     scottish_re = r'(?i)\b(?P<mc>ma?c)(?!hin)(?P<first_letter>\w)\w+'
@@ -178,6 +179,7 @@ class PersonName(Name):
             first, last
             last
         """
+
         if kwargs.get('allow_quoted_nicknames'):
             args = [ x.strip() for x in args if not re.match(r'^[(]', x) ]
         else:
@@ -217,12 +219,15 @@ class PersonName(Name):
         return self
 
     def is_a_suffix(self, name_part):
-        return re.match(r'(?i)^%s$' % SUFFIX_RE, name_part)
+        return re.match(r'^%s$' % SUFFIX_RE, name_part, re.IGNORECASE)
 
     def is_an_honorific(self, name_part):
-        return re.match(r'^(?i)\s*[dm][rs]s?[.,]?\s*$', name_part)
+        return re.match(r'^\s*[dm][rs]s?[.,]?\s*$', name_part, re.IGNORECASE)
 
     def is_a_nickname(self, name_part):
+        """
+        Nicknames, in our data, often come wrapped in parentheses or the like. This detects those.
+        """
         return re.match(r'^["(].*[")]$', name_part)
 
     def detect_and_fix_two_part_surname(self, args):
@@ -256,6 +261,9 @@ class PersonName(Name):
         ] if x])
 
     def case_name_parts(self):
+        """
+        Convert all the parts of the name to the proper case... carefully!
+        """
         if not self.is_mixed_case():
             self.honorific = self.honorific.title() if self.honorific else None
             self.nick = self.nick.title() if self.nick else None

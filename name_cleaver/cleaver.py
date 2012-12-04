@@ -1,6 +1,6 @@
 import re
 from exception import UnparseableNameException
-from names import SUFFIX_RE, PersonName, PoliticianName, RunningMatesNames, \
+from names import SUFFIX_RE, DEGREE_RE, PersonName, PoliticianName, RunningMatesNames, \
     OrganizationName
 from nicknames import NICKNAMES
 
@@ -12,9 +12,9 @@ class BaseNameCleaver(object):
             return self.orig_str
         else:
             # uncomment for debugging
-            # if e:
-            #    print e
-            raise UnparseableNameException("Couldn't parse name: {0}".format(self.name))
+            #if e:
+            #   print e
+            raise UnparseableNameException(u"Couldn't parse name: {0}".format(self.name))
 
 
 class IndividualNameCleaver(BaseNameCleaver):
@@ -45,7 +45,7 @@ class IndividualNameCleaver(BaseNameCleaver):
             except Exception, e:
                 return self.cannot_parse(safe, e)
             finally:
-                if (isinstance(self.name, self.object_class) and self.name.first and self.name.last):
+                if (isinstance(self.name, self.object_class) and self.name.last):
                     return self.name.case_name_parts()
                 else:
                     return self.cannot_parse(safe)
@@ -61,7 +61,9 @@ class IndividualNameCleaver(BaseNameCleaver):
 
     def separate_affixes(self, name):
         name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[dm][rs]s?[,.]?)(?=(\b|\s))+', name)
+
         name, suffix = self.extract_suffix(name)
+
         if suffix:
             suffix = suffix.replace('.', '')
 
@@ -74,18 +76,35 @@ class IndividualNameCleaver(BaseNameCleaver):
         return name, honorific, suffix, nick
 
     def extract_matching_portion(self, pattern, name):
-        m = re.search(pattern, name, flags=re.IGNORECASE)
+        m = re.finditer(pattern, name, flags=re.IGNORECASE)
 
-        if m:
-            matched_piece = m.group()
+        matched_portion = None
+        match_strings = []
+
+        for match in m:
+            matched_piece = match.group()
+            match_strings.append(matched_piece)
             name = re.sub('\s*{0}\s*'.format(matched_piece), '', name)
-        else:
-            matched_piece = None
 
-        return name, matched_piece
+        if len(match_strings):
+            matched_portion = ' '.join(match_strings)
+
+        return name, matched_portion
 
     def extract_suffix(self, name):
-        return self.extract_matching_portion(r'\b(?P<suffix>%s(?=(\b|\s))+)' % SUFFIX_RE, name)
+        """
+        Returns a tuple of (name, suffix), or (name, None) if no suffix could be found.
+        As the method name indicates, the name is returned without the suffix.
+
+        Suffixes deemed to be degrees are discarded.
+        """
+        # don't extract suffixes if we can't reasonably suspect we have enough parts to the name for there to be one
+        if len(name.strip().split()) > 2:
+            name, suffix = self.extract_matching_portion(r'\b(?P<suffix>{})(?=\b|\s)'.format(SUFFIX_RE), name)
+            suffix, degree = self.extract_matching_portion(DEGREE_RE, suffix or '')
+            return name, suffix or None
+
+        return name, None
 
     def reverse_last_first(self, name):
         """ Takes a name that is in [last, first] format and returns it in a hopefully [first last] order.
@@ -93,12 +112,13 @@ class IndividualNameCleaver(BaseNameCleaver):
         """
         # make sure we don't put a suffix in the middle, as in "Smith, Tom II"
         name, suffix = self.extract_suffix(name)
+
         split = re.split(', ?', name)
 
         # make sure that the comma is not just preceding a suffix, such as "Jr",
         # by checking that we have at least 2 name parts and the last doesn't match
         # our suffix regex
-        if len(split) >= 2 and not re.match('(?i)%s' % SUFFIX_RE, split[-1].strip()):
+        if len(split) >= 2:
             split.reverse()
 
         if suffix:
