@@ -204,7 +204,7 @@ class PoliticianNameCleaver(IndividualNameCleaver):
             except Exception, e:
                 return self.cannot_parse(safe, e)
             finally:
-                if ((isinstance(self.name, self.object_class) and self.name.first and self.name.last) or isinstance(self.name, RunningMatesNames)):
+                if ((isinstance(self.name, self.object_class) and self.name.last) or isinstance(self.name, RunningMatesNames)):
                     return self.name.case_name_parts()
                 else:
                     return self.cannot_parse(safe)
