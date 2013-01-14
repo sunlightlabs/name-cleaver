@@ -5,6 +5,7 @@
 # Jack, but unless you want John and Jacob to be stand-ins
 # for each other, they should not be together.
 NICKNAMES = (
+    ('Abigail', 'Abby'),
     ('Allan', 'Allen', 'Alan', 'Al'),
     ('Allison', 'Alison', 'Ali', 'Aly', 'Allie'),
     ('Andre', u'Andr\00e9'),
@@ -66,6 +67,7 @@ NICKNAMES = (
     ('Theodore', 'Ted', 'Teddy'),
     ('Terrance', 'Terry'),
     ('Thomas', 'Tom', 'Thom', 'Tommy'),
+    ('Vernon', 'Vern'),
     ('William', 'Bill', 'Billy', 'Will', 'Willy'),
     ('Willis', 'Will'),
 )
