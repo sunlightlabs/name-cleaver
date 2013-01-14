@@ -127,7 +127,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         return ' '.join(split)
 
     def convert_name_to_obj(self, name, nick, honorific, suffix):
-        name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
+        name = ' '.join([x.strip().strip('.') for x in [name, nick, suffix, honorific] if x])
 
         return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames': True})
 

@@ -181,9 +181,9 @@ class PersonName(Name):
         """
 
         if kwargs.get('allow_quoted_nicknames'):
-            args = [ x.strip() for x in args if not re.match(r'^[(]', x) ]
+            args = [ x.strip().strip('.') for x in args if not re.match(r'^[(]', x) ]
         else:
-            args = [ x.strip() for x in args if not re.match(r'^[("]', x) ]
+            args = [ x.strip().strip('.') for x in args if not re.match(r'^[("]', x) ]
 
         if len(args) > 2:
             self.detect_and_fix_two_part_surname(args)
@@ -196,8 +196,12 @@ class PersonName(Name):
         if len(args):
             if self.is_an_honorific(args[-1]):
                 self.honorific = args.pop()
+                if not self.honorific[-1] == '.':
+                    self.honorific += '.'
             if self.is_a_suffix(args[-1]):
                 self.suffix = args.pop()
+                if re.match(r'[js]r(?!\.)', self.suffix, re.IGNORECASE):
+                    self.suffix += '.'
             if self.is_a_nickname(args[-1]):
                 self.nick = args.pop()
             self.last = args.pop()
@@ -212,9 +216,14 @@ class PersonName(Name):
 
         elif num_remaining_parts == 2:
             self.first, self.middle = args
+            if len(self.middle) == 1:
+                self.middle += '.'
 
         elif num_remaining_parts == 1:
             self.first = ' '.join(args)
+
+        if self.first and len(self.first) == 1:
+            self.first += '.'
 
         return self
 
@@ -252,11 +261,11 @@ class PersonName(Name):
 
     def name_str(self):
         return ' '.join([x.strip() for x in [
-            self.honorific if self.honorific and self.honorific.lower() in self.allowed_honorifics else '',
+            self.honorific if self.honorific and self.honorific.lower() in self.allowed_honorifics else None,
             self.first,
             self.middle,
             self.nick,
-            self.last,
+            self.last + (',' if self.suffix else ''),
             self.suffix
         ] if x])
 
