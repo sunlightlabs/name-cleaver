@@ -4,3 +4,5 @@ dist
 *.swo
 *.swp
 *.swn
+.noseids
+build/*
