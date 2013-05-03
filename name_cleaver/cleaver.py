@@ -60,9 +60,10 @@ class IndividualNameCleaver(BaseNameCleaver):
         return name
 
     def separate_affixes(self, name):
-        name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[dm][rs]s?[,.]?)(?=(\b|\s))+', name)
 
         name, suffix = self.extract_suffix(name)
+
+        name, honorific = self.extract_matching_portion(r'\b(?P<honorific>[dm][rs]s?[,.]?)(?=(\b|\s))+', name)
 
         if suffix:
             suffix = suffix.replace('.', '')
