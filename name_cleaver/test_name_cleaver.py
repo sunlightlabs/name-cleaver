@@ -244,6 +244,7 @@ class TestIndividualNameCleaver(unittest.TestCase):
 
     def test_honorific_and_suffix_both_at_end(self):
         self.assertEqual('Paul De Cleva, Sr.', self.cleave_to_str('DE CLEVA, PAUL MR SR'))
+        self.assertEqual('Bill Marriott, Jr.', self.cleave_to_str('MARRIOTT, BILL MR JR'))
 
 
 class TestCapitalization(unittest.TestCase):

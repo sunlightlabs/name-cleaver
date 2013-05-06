@@ -20,6 +20,7 @@ NICKNAMES = (
     ('Christopher', 'Chris'),
     ('Daniel', 'Dan', 'Danny'),
     ('David', 'Dave'),
+    ('Dennis', 'Denny'),
     ('Donald', 'Don', 'Donny'),
     ('Douglas', 'Doug'),
     ('Edward', 'Ed', 'Eddie'),
