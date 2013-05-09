@@ -21,10 +21,14 @@ Example:
 
     from name_cleaver import PolicitianNameCleaver
     smith = PoliticianNameCleaver('Smith, Robert J').parse()
+    
+    smith.first => "Robert"
+    smith.middle => "J."
+    smith.last => "Smith"
 
-    print str(smith) => "Robert J Smith"
+    print str(smith) => "Robert J. Smith"
 
-Usage as above can usually be expected to return a Name object, but is not guaranteed to not throw an exception, if NameCleaver is given unexpected input or otherwise can't figure out what to do with a name. In the case that you don't want to deal with handling exceptions, NameCleaver has a safe mode:
+Usage as above can usually be expected to return a Name object, but is not guaranteed to not throw an exception if NameCleaver is given unexpected input or otherwise can't figure out what to do with a name. You can look for and handle Name Cleaver's `UnparseableNameException` class. If you don't want to deal with handling exceptions, NameCleaver has a safe mode:
 
     smith = PoliticianNameCleaver('Smith, Robert J').parse(safe=True)
 
