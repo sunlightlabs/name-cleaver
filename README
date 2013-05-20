@@ -19,7 +19,7 @@ Basic usage is the same for each type of name, just import the relevant NameClea
 
 Example:
 
-    from name_cleaver import PolicitianNameCleaver
+    from name_cleaver import PoliticianNameCleaver
     smith = PoliticianNameCleaver('Smith, Robert J').parse()
     
     smith.first => "Robert"
