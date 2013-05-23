@@ -253,8 +253,10 @@ class TestIndividualNameCleaver(unittest.TestCase):
 
         self.assertEqual('C.A. "Dutch" Ruppersberger', self.cleave_to_str('C.A. "Dutch" Ruppersberger'))
 
-        self.assertEqual('"Dutch"', IndividualNameCleaver('C.A. "Dutch" Ruppersberger').parse().nick)
-        self.assertIsNone(IndividualNameCleaver('C.A. "Dutch" Ruppersberger').parse().middle)
+        dutch = IndividualNameCleaver('C.A. "Dutch" Ruppersberger').parse()
+        self.assertEqual('"Dutch"', dutch.nick)
+        self.assertIsNone(dutch.middle)
+        self.assertEqual('C.A.', dutch.first)
 
 
 class TestCapitalization(unittest.TestCase):
