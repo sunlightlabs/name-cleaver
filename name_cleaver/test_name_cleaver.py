@@ -48,6 +48,8 @@ class TestPoliticianNameCleaver(unittest.TestCase):
         self.assertEqual('John J. Duncan, Jr.', str(PoliticianNameCleaver('John J (Jimmy) Duncan Jr (R)').parse()))
         self.assertEqual('Christopher Bond', str(PoliticianNameCleaver('Christopher "Kit" Bond').parse()))
 
+        self.assertEqual('"Kit"', IndividualNameCleaver('Christopher "Kit" Bond').parse().nick)
+
     def test_capitalize_roman_numeral_suffixes(self):
         self.assertEqual('Ken Cuccinelli, II', str(PoliticianNameCleaver('KEN CUCCINELLI II').parse()))
         self.assertEqual('Ken Cuccinelli, II', str(PoliticianNameCleaver('CUCCINELLI II, KEN').parse()))
@@ -245,6 +247,16 @@ class TestIndividualNameCleaver(unittest.TestCase):
     def test_honorific_and_suffix_both_at_end(self):
         self.assertEqual('Paul De Cleva, Sr.', self.cleave_to_str('DE CLEVA, PAUL MR SR'))
         self.assertEqual('Bill Marriott, Jr.', self.cleave_to_str('MARRIOTT, BILL MR JR'))
+
+    def test_considers_double_initial_a_first_name(self):
+        self.assertEqual('C.W. Bill Young', self.cleave_to_str('C.W. Bill Young'))
+
+        self.assertEqual('C.A. "Dutch" Ruppersberger', self.cleave_to_str('C.A. "Dutch" Ruppersberger'))
+
+        dutch = IndividualNameCleaver('C.A. "Dutch" Ruppersberger').parse()
+        self.assertEqual('"Dutch"', dutch.nick)
+        self.assertIsNone(dutch.middle)
+        self.assertEqual('C.A.', dutch.first)
 
 
 class TestCapitalization(unittest.TestCase):

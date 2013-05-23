@@ -1,7 +1,7 @@
 import re
 
-DEGREE_RE = '(j\.?d|m\.?d|ph\.?d)'
-SUFFIX_RE = '((([js]r|%s)\.?)|[IVX]{2,})' % DEGREE_RE
+DEGREE_RE = 'j\.?d\.?|m\.?d\.?|ph\.?d\.?'
+SUFFIX_RE = '([js]r\.?|%s|[IVX]{2,})' % DEGREE_RE
 
 class Name(object):
     scottish_re = r'(?i)\b(?P<mc>ma?c)(?!hin)(?P<first_letter>\w)\w+'
@@ -181,9 +181,9 @@ class PersonName(Name):
         """
 
         if kwargs.get('allow_quoted_nicknames'):
-            args = [ x.strip().strip('.') for x in args if not re.match(r'^[(]', x) ]
+            args = [ x.strip() for x in args if not re.match(r'^[(]', x) ]
         else:
-            args = [ x.strip().strip('.') for x in args if not re.match(r'^[("]', x) ]
+            args = [ x.strip() for x in args if not re.match(r'^[("]', x) ]
 
         if len(args) > 2:
             self.detect_and_fix_two_part_surname(args)

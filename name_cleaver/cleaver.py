@@ -69,7 +69,7 @@ class IndividualNameCleaver(BaseNameCleaver):
             suffix = suffix.replace('.', '')
 
         name, junk = self.extract_matching_portion(r'(?P<junk_numbers>\b\d{2,}(?=(\b|\s))+)', name)
-        name, nick = self.extract_matching_portion(r'("[^"]*")', name)
+        name, nick = self.extract_matching_portion(r'("[^"]+")', name)
 
         # strip trailing non alphanumeric characters
         name = re.sub(r'[^a-zA-Z0-9]$', '', name)
@@ -85,7 +85,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         for match in m:
             matched_piece = match.group()
             match_strings.append(matched_piece)
-            name = re.sub('\s*{0}\s*'.format(matched_piece), '', name)
+            name = re.sub('\s?{0}'.format(matched_piece), '', name)
 
         if len(match_strings):
             matched_portion = ' '.join(match_strings)
@@ -101,7 +101,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         """
         # don't extract suffixes if we can't reasonably suspect we have enough parts to the name for there to be one
         if len(name.strip().split()) > 2:
-            name, suffix = self.extract_matching_portion(r'\b(?P<suffix>{})(?=\b|\s)'.format(SUFFIX_RE), name)
+            name, suffix = self.extract_matching_portion(r'\b(?P<suffix>{})(?=\b|\s|\Z|\W)'.format(SUFFIX_RE), name)
             suffix, degree = self.extract_matching_portion(DEGREE_RE, suffix or '')
             return name, suffix or None
 
@@ -128,7 +128,7 @@ class IndividualNameCleaver(BaseNameCleaver):
         return ' '.join(split)
 
     def convert_name_to_obj(self, name, nick, honorific, suffix):
-        name = ' '.join([x.strip().strip('.') for x in [name, nick, suffix, honorific] if x])
+        name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
 
         return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames': True})
 
