@@ -107,18 +107,14 @@ class OrganizationName(Name):
         # department or geographic subdivision; we want to remove this extraneous stuff without breaking names like
         # Wal-Mart or Williams-Sonoma
 
-        # if there's a hyphen preceeded by either a space or at least four characters, proceed
-        hyphen_parts = re.split("(\w{4,}|\s+)(-+)", name)
-        if len(hyphen_parts) > 1:
-            # split at the rightmost hyphen match
-            hyphen_position = [i for i in range(len(hyphen_parts) - 1, -1, -1) if re.match("^-+$", hyphen_parts[i])][0]
-            single_hyphen_parts = ("".join(hyphen_parts[:hyphen_position]), "".join(hyphen_parts[hyphen_position+1:]))
-
+        # if there's a hyphen at least four characters in, proceed
+        if "-" in name[4:]:
+            hyphen_parts = name.rsplit("-", 1)
             # if the part after the hyphen is shorter than the part before,
             # AND isn't either a number (often occurs in Union names) or a single letter (e.g., Tech-X)
             # discard the hyphen and whatever follows
-            if len(single_hyphen_parts[1]) < len(single_hyphen_parts[0]) and not re.match(r'^([a-zA-Z]|[0-9]+)$', single_hyphen_parts[1]):
-                name = single_hyphen_parts[0]
+            if len(hyphen_parts[1]) < len(hyphen_parts[0]) and not re.match(r'^([a-zA-Z]|[0-9]+)$', hyphen_parts[1]):
+                name = hyphen_parts[0]
 
         return name
 
