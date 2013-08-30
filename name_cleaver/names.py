@@ -102,8 +102,21 @@ class OrganizationName(Name):
         name = re.sub(r'(?i)\s* formerly.*$', '', name)
         name = re.sub(r'(?i)\s*and its affiliates$', '', name)
         name = re.sub(r'\bet al\b', '', name)
-        # strip everything after the hyphen if there are at least four characters preceding it
-        return re.sub(r'(\w{4,})-+.*$', '\\1', name)
+        
+        # in some datasets, the name of an organization is followed by a hyphen and an abbreviated name, or a specific
+        # department or geographic subdivision; we want to remove this extraneous stuff without breaking names like
+        # Wal-Mart or Williams-Sonoma
+
+        # if there's a hyphen at least four characters in, proceed
+        if "-" in name[4:]:
+            hyphen_parts = name.rsplit("-", 1)
+            # if the part after the hyphen is shorter than the part before,
+            # AND isn't either a number (often occurs in Union names) or a single letter (e.g., Tech-X)
+            # discard the hyphen and whatever follows
+            if len(hyphen_parts[1]) < len(hyphen_parts[0]) and not re.match(r'^([a-zA-Z]|[0-9]+)$', hyphen_parts[1]):
+                name = hyphen_parts[0]
+
+        return name
 
     def without_punctuation(self):
         name = re.sub(r'/', ' ', self.without_extra_phrases())
