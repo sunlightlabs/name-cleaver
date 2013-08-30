@@ -108,13 +108,14 @@ class OrganizationName(Name):
         # Wal-Mart or Williams-Sonoma
 
         # if there's a hyphen at least four characters in, proceed
-        if "-" in name[4:]:
+        if "-" in name:
             hyphen_parts = name.rsplit("-", 1)
             # if the part after the hyphen is shorter than the part before,
-            # AND isn't either a number (often occurs in Union names) or a single letter (e.g., Tech-X)
+            # AND isn't either a number (often occurs in Union names) or a single letter (e.g., Tech-X),
+            # AND the hyphen is preceded by either whitespace or at least four characters,
             # discard the hyphen and whatever follows
-            if len(hyphen_parts[1]) < len(hyphen_parts[0]) and not re.match(r'^([a-zA-Z]|[0-9]+)$', hyphen_parts[1]):
-                name = hyphen_parts[0]
+            if len(hyphen_parts[1]) < len(hyphen_parts[0]) and re.search(r'(\w{4,}|\s+)$', hyphen_parts[0]) and not re.match(r'^([a-zA-Z]|[0-9]+)$', hyphen_parts[1]):
+                name = hyphen_parts[0].strip()
 
         return name
 
