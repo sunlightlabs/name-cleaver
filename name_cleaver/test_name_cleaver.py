@@ -145,9 +145,13 @@ class TestOrganizationNameCleaver(unittest.TestCase):
         self.assertEqual('US-Russia Business Council', OrganizationNameCleaver('US-Russia Business Council').parse().kernel())
         self.assertEqual('Wal-Mart Stores', OrganizationNameCleaver('Wal-Mart Stores, Inc.').parse().kernel())
 
-    def test_strip_hyphens_more_than_three_characters_into_a_name(self):
-        # This is not ideal for this name, but we can't get the best for all cases
-        self.assertEqual('F Hoffmann', OrganizationNameCleaver('F. HOFFMANN-LA ROCHE LTD and its Affiliates').parse().kernel())
+        # these were new after the hyphen rewrite
+        self.assertEqual('Coca-Cola Company', OrganizationNameCleaver('Coca-Cola Co').parse().expand()) # used to return 'Coca'
+        self.assertEqual('Rolls-Royce PLC', OrganizationNameCleaver('Rolls-Royce PLC').parse().expand()) # used to return 'Rolls'
+
+    def test_drop_postname_hyphen_phrases(self):
+        self.assertEqual('Lawyers For Better Government', OrganizationNameCleaver('LAWYERS FOR BETTER GOVERNMENT-ILLINOIS').parse().without_extra_phrases())
+        self.assertEqual('Jobs Opportunity And Freedom Political Action Committee', OrganizationNameCleaver('JOBS OPPORTUNITY AND FREEDOM POLITICAL ACTION COMMITTEE - JOFPAC').parse().without_extra_phrases())
 
     def test_kernel(self):
         """
