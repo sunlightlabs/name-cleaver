@@ -7,7 +7,7 @@ f.close()
 
 setup(
     name='name-cleaver',
-    version='0.5.2',
+    version='0.6.0alpha',
     description='Name parser and formatter (for politicians, individuals, and organizations)',
     long_description=readme,
     author='Alison Rowland',
