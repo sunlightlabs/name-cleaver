@@ -234,13 +234,11 @@ class PoliticianNameCleaver(IndividualNameCleaver):
         return RunningMatesNames(*[self.convert_name_to_obj(x) for x in re.split(' [&/] ', name)])
 
 
-class OrganizationNameCleaver(object):
+class OrganizationNameCleaver(BaseNameCleaver):
     def __init__(self, string, object_class=None):
-        self.name = string
-        self.orig_str = string
         if object_class is None:
             object_class = OrganizationName
-        self.object_class = object_class
+        super(OrganizationNameCleaver, self).__init__(string, object_class)
 
     def get_object_class(self):
         return self.object_class()
