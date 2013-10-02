@@ -18,18 +18,22 @@ class BaseNameCleaver(object):
 
 
 class IndividualNameCleaver(BaseNameCleaver):
-    object_class = PersonName
-
-    def __init__(self, string):
+    def __init__(self, string, object_class=None):
         self.name = string
         self.orig_str = string
+        if object_class is None:
+            object_class = PersonName
+        self.object_class = object_class
+
+    def get_object_class(self):
+        return self.object_class()
 
     def parse(self, safe=False):
         if not self.orig_str:
             return ''
 
         if not ' ' in self.name:
-            self.name = self.object_class().new_from_tokens(self.name)
+            self.name = self.get_object_class().new_from_tokens(self.name)
             return self.name.case_name_parts()
         else:
             try:
@@ -130,7 +134,7 @@ class IndividualNameCleaver(BaseNameCleaver):
     def convert_name_to_obj(self, name, nick, honorific, suffix):
         name = ' '.join([x.strip() for x in [name, nick, suffix, honorific] if x])
 
-        return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames': True})
+        return self.get_object_class().new_from_tokens(*[x for x in re.split('\s+', name)], **{'allow_quoted_nicknames': True})
 
     @classmethod
     def name_processing_failed(cls, subject_name):
@@ -186,17 +190,18 @@ class IndividualNameCleaver(BaseNameCleaver):
 
 class PoliticianNameCleaver(IndividualNameCleaver):
 
-    object_class = PoliticianName
-
-    def __init__(self, string):
-        super(PoliticianNameCleaver, self).__init__(string)
+    def __init__(self, string, object_class=None):
+        if object_class is None:
+            object_class = PoliticianName
+        super(PoliticianNameCleaver, self).__init__(string,
+                object_class=object_class)
 
     def parse(self, safe=False):
         if not self.orig_str:
             return ''
 
         if not ' ' in self.name:
-            self.name = self.object_class().new_from_tokens(self.name)
+            self.name = self.get_object_class().new_from_tokens(self.name)
             return self.name.case_name_parts()
         else:
             try:
@@ -222,18 +227,22 @@ class PoliticianNameCleaver(IndividualNameCleaver):
 
     def convert_regular_name_to_obj(self, name):
         name = self.reverse_last_first(name)
-        return self.object_class().new_from_tokens(*[x for x in re.split('\s+', name) if x])
+        return self.get_object_class().new_from_tokens(*[x for x in re.split('\s+', name) if x])
 
     def convert_running_mates_names_to_obj(self, name):
         return RunningMatesNames(*[self.convert_name_to_obj(x) for x in re.split(' [&/] ', name)])
 
 
 class OrganizationNameCleaver(object):
-    object_class = OrganizationName
-
-    def __init__(self, string):
+    def __init__(self, string, object_class=None):
         self.name = string
         self.orig_str = string
+        if object_class is None:
+            object_class = OrganizationName
+        self.object_class = object_class
+
+    def get_object_class(self):
+        return self.object_class()
 
     def parse(self, safe=False):
         if not self.orig_str:
@@ -242,7 +251,7 @@ class OrganizationNameCleaver(object):
         try:
             self.name = self.name.strip()
 
-            self.name = self.object_class().new(self.name)
+            self.name = self.get_object_class().new(self.name)
         except Exception, e:
             return self.cannot_parse(safe, e)
         finally:
@@ -252,7 +261,7 @@ class OrganizationNameCleaver(object):
                 return self.cannot_parse(safe)
 
     def convert_name_to_obj(self):
-        self.name = self.object_class().new(self.name)
+        self.name = self.get_object_class().new(self.name)
 
     @classmethod
     def name_processing_failed(cls, subject_name):
