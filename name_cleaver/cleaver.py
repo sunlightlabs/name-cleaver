@@ -6,10 +6,9 @@ from nicknames import NICKNAMES
 
 
 class BaseNameCleaver(object):
-    def __init__(self, string, object_class=None):
+    def __init__(self, string):
         self.name = string
         self.orig_str = string
-        self.object_class = object_class
 
     def cannot_parse(self, safe, e=None):
         if safe:
@@ -22,10 +21,10 @@ class BaseNameCleaver(object):
 
 
 class IndividualNameCleaver(BaseNameCleaver):
-    def __init__(self, string, object_class=None):
-        if object_class is None:
-            object_class = PersonName
-        super(IndividualNameCleaver, self).__init__(string, object_class)
+    object_class = PersonName
+
+    def __init__(self, string):
+        super(IndividualNameCleaver, self).__init__(string)
 
     def get_object_class(self):
         return self.object_class()
@@ -191,11 +190,10 @@ class IndividualNameCleaver(BaseNameCleaver):
 
 
 class PoliticianNameCleaver(IndividualNameCleaver):
+    object_class = PoliticianName
 
-    def __init__(self, string, object_class=None):
-        if object_class is None:
-            object_class = PoliticianName
-        super(PoliticianNameCleaver, self).__init__(string, object_class)
+    def __init__(self, string):
+        super(PoliticianNameCleaver, self).__init__(string)
 
     def parse(self, safe=False):
         if not self.orig_str:
@@ -235,10 +233,10 @@ class PoliticianNameCleaver(IndividualNameCleaver):
 
 
 class OrganizationNameCleaver(BaseNameCleaver):
-    def __init__(self, string, object_class=None):
-        if object_class is None:
-            object_class = OrganizationName
-        super(OrganizationNameCleaver, self).__init__(string, object_class)
+    object_class = OrganizationName
+
+    def __init__(self, string):
+        super(OrganizationNameCleaver, self).__init__(string)
 
     def get_object_class(self):
         return self.object_class()
