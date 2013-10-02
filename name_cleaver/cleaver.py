@@ -6,6 +6,10 @@ from nicknames import NICKNAMES
 
 
 class BaseNameCleaver(object):
+    def __init__(self, string, object_class=None):
+        self.name = string
+        self.orig_str = string
+        self.object_class = object_class
 
     def cannot_parse(self, safe, e=None):
         if safe:
@@ -19,11 +23,9 @@ class BaseNameCleaver(object):
 
 class IndividualNameCleaver(BaseNameCleaver):
     def __init__(self, string, object_class=None):
-        self.name = string
-        self.orig_str = string
         if object_class is None:
             object_class = PersonName
-        self.object_class = object_class
+        super(IndividualNameCleaver, self).__init__(string, object_class)
 
     def get_object_class(self):
         return self.object_class()
@@ -193,8 +195,7 @@ class PoliticianNameCleaver(IndividualNameCleaver):
     def __init__(self, string, object_class=None):
         if object_class is None:
             object_class = PoliticianName
-        super(PoliticianNameCleaver, self).__init__(string,
-                object_class=object_class)
+        super(PoliticianNameCleaver, self).__init__(string, object_class)
 
     def parse(self, safe=False):
         if not self.orig_str:
