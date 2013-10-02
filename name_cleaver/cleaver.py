@@ -19,15 +19,15 @@ class BaseNameCleaver(object):
             #   print e
             raise UnparseableNameException(u"Couldn't parse name: {0}".format(self.name))
 
+    def get_object_class(self):
+        return self.object_class()
+
 
 class IndividualNameCleaver(BaseNameCleaver):
     object_class = PersonName
 
     def __init__(self, string):
         super(IndividualNameCleaver, self).__init__(string)
-
-    def get_object_class(self):
-        return self.object_class()
 
     def parse(self, safe=False):
         if not self.orig_str:
@@ -237,9 +237,6 @@ class OrganizationNameCleaver(BaseNameCleaver):
 
     def __init__(self, string):
         super(OrganizationNameCleaver, self).__init__(string)
-
-    def get_object_class(self):
-        return self.object_class()
 
     def parse(self, safe=False):
         if not self.orig_str:
